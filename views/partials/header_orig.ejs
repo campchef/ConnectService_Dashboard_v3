@@ -1,0 +1,130 @@
+<div class = "topnav" id="myTopnav">
+<nav class="navbar navbar-expand-lg bg-secondary navbar-dark sticky-top">
+  <a class="navbar-brand" href="/v3"> <i class="fas fa-home fa-2x text-body" ></i></a>
+
+    <% 
+    const cc_employee_admin = 2;
+    const cc_employee_cs = 3;
+    const cc_employee_buis = 4;
+    const cc_employee = 5;
+    const cc_customer = 99;
+    var accessLevel = cc_customer; 
+    var accessLable = "";   
+    if (userToken != null) { 
+      if (userToken['cognito:groups'] != undefined) {
+        userToken['cognito:groups'].forEach( group => {
+            if (group === 'cc_employee'){
+                if(cc_employee < accessLevel){
+                    accessLevel = cc_employee;
+                    accessLable = "Employee";
+                }
+            } 
+            if (group === 'cc_employee_buis' ){
+                if (cc_employee_buis < accessLevel){
+                    accessLevel = cc_employee_buis;
+                    accessLable = "Business";    
+                }
+            } 
+            if (group === 'cc_employee_cs'){
+                if (cc_employee_cs < accessLevel){
+                    accessLevel = cc_employee_cs;
+                    accessLable = "Customer Service";
+                }
+            }
+            if (group === 'cc_employee_admin'){
+                if (cc_employee_admin < accessLevel){
+                    accessLevel = cc_employee_admin;
+                    accessLable = "Admin";
+                }
+            }
+          });
+      } 
+    } %>
+    
+  <ul class="navbar-nav mr-auto">
+    <% if (accessLevel == cc_employee_admin || accessLevel == cc_employee_buis) { %> 
+    <li class="nav-item">
+      <a class="nav-link" href="/v3/busi">Info</a>
+    </li>
+    <% } %>
+
+    <!-- <li class="nav-item">
+      <a class="nav-link" href="/v3/faq">FAQ</a>
+    </li> -->  
+
+    <% if(userUUID != "" ) { %>
+      <li>
+        <a class="nav-link" id="history" href="" >History</a> 
+      </li>
+   
+
+    <script>
+      var time_offset = new Date().getTimezoneOffset();
+      var historyHref = "/v3/sessions?userUUID=<%= userUUID %>&histEmail=<%= email %>&tz_offset="+time_offset;
+      document.getElementById("history").setAttribute("href", historyHref)
+    </script>
+    <% } %>
+
+    <% if(accessLevel == cc_employee_admin){ %>
+      <li class="nav-item">
+        <a class="nav-link" href="/v3/uploadFirmware">firmware</a>
+      </li>
+    <% } %> 
+
+    <% if(accessLevel == cc_employee_admin){ %>
+      <li class="nav-item">
+        <a class="nav-link" href="/v3/status">Status</a>
+      </li>
+      <% } %>  
+
+    <li class="nav-item">
+      <a class="nav-link" href="/v3/logout">Logout</a>
+    </li>
+
+    <% if (accessLevel == cc_employee_admin || accessLevel == cc_employee_cs) { %>
+    <li>
+      <form class="form-inline" id="device-id" method="get" action="/v3/devices">
+        <div class="form-group">
+        <% if(deviceId == "" || deviceId == null) {%>
+            <input type="text" class="form-control mr-md-2" id="deviceId" aria-describedby="deviceIdHelp"
+            placeholder="CampChef:xx:xx" name="deviceId">
+        <%} else { %>
+            <input type="text" class="form-control mr-md-2" id="deviceId" aria-describedby="deviceIdHelp"
+                placeholder="CampChef:xx:xx" name="deviceID" value="<%= deviceId %>">
+        <% } %>
+        </div>
+      </form>
+   
+      <form class="form-inline" id="user-email" method="get" action="/v3/">
+          <div class="form-group">
+            <% if(email=="" ) {%>
+              <input type="email" class="form-control mr-md-2" id="InputEmail" aria-describedby="emailHelp"
+                      placeholder="Enter User email" name="email">
+            <%} else { %>
+              <input type="email" class="form-control mr-md-2" id="InputEmail" aria-describedby="emailHelp"
+                      placeholder="Enter email" name="email" value="<%= email %>">
+            <% } %>
+          </div>
+      </form>
+   
+  </li> 
+  <% } %>  
+  <li>
+      <div class="col">
+          <small class="badge badge-pill badge-light text-muted" ><%= accessLable %>: <%= userToken.email %> </small>
+
+          <% if (accessLevel == cc_employee_admin) { %>
+            <br>
+            <small class="badge badge-pill badge-light text-muted" >My ID: <%= userToken.sub %></small>
+          <% } %>  
+
+          <% if (online != undefined && online != null) { %>
+            <br>
+            <a href="/v3/active"> <small class="badge badge-pill badge-light text-muted" >Active Devices: <span class="badge badge-secondary" ><%= online %></span></small></a>
+          <% } %>
+
+      </div>
+  </li> 
+  </ul>
+  </div>
+</nav>

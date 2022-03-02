@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container pt-0 mt-0">
+
+    <main>
+
+        <%- include('../partials/header', {email:email, userUUID:userUUID, userToken:userToken}); %>
+
+        <div class="container-fluid">
+            <br>
+          
+            <div class="card-columns">
+
+                <div class="card border"> 
+                    <div class="card-header bg-danger">
+                        <h5>Redis</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Memory</h6>                        
+                        <ul class="nav flex-column">
+                            <li><small class="text-muted ">Used Memory </small><%= info.redisDisplay.used_memory_humman %></li>
+                            <li><small class="text-muted ">Used Memory Peak </small><%= info.redisDisplay.used_memory_peak_human %></li>
+                            <li><small class="text-muted ">Used Memory RSS </small><%= info.redisDisplay.used_memory_rss_human %></li>
+                            <li><small class="text-muted ">Memory Fragmention Ratio </small><%= info.redisDisplay.mem_framentation_ratio %></span></li>
+                        </ul>
+                        <br>    
+                        <h6>Clients</h6>
+                        <ul class="nav flex-column">
+                            <li><small class="text-muted ">Connected Clients </small><%= info.redisDisplay.connected_clients %></li>
+                            <li><small class="text-muted ">Blocked Clients </small><%= info.redisDisplay.blocked_clients %></li>
+                        </ul>
+                        <br>
+                        <h6>Replication</h6>
+
+                        <ul class="nav flex-column">
+                            <li><small class="text-muted ">Replicas </small><%= info.redisDisplay.connected_slaves %></li>  
+                        </ul>
+
+
+                        <% 
+                            let ip_0 = "";
+                            let port_0 = "";
+                            let state_0 = "";
+                            if (info.redisDisplay.replica0.ip != undefined) {
+                                ip_0 = info.redisDisplay.replica0.ip;
+                            }
+                            if (info.redisDisplay.replica0.port != undefined){
+                                port_0 = info.redisDisplay.replica0.port;
+                            }
+                            if (info.redisDisplay.replica0.state != undefined){
+                                state_0 = info.redisDisplay.replica0.state;
+                            }
+                        %>
+                       <br>
+                        <span class="text-muted">Replica - 0</span>
+                        <ul class="nav flex-column">
+                            <li><small class="text-muted ">IP </small><%= ip_0 %></li>
+                            <li><small class="text-muted ">Port </small><%= port_0%></li>
+                            <li><small class="text-muted ">State </small><%= state_0 %></li>
+                        </ul>
+
+
+                        <% 
+                            let ip_1 = "";
+                            let port_1 = "";
+                            let state_1 = "";
+                            if (info.redisDisplay.replica1.ip != undefined) {
+                                ip_1 = info.redisDisplay.replica1.ip;
+                            }
+                            if (info.redisDisplay.replica1.port != undefined){
+                                port_1 = info.redisDisplay.replica1.port;
+                            }
+                            if (info.redisDisplay.replica1.state != undefined){
+                                state_1 = info.redisDisplay.replica1.state;
+                            }
+                        %>
+                       <br>
+                       <span class="text-muted">Replica - 1</span>
+                        <ul class="nav flex-column">
+                            <li><small class="text-muted ">IP </small><%= ip_1 %></li>
+                            <li><small class="text-muted ">Port_1 </small><%= port_1 %></li>
+                            <li><small class="text-muted ">State_1 </small><%= state_1 %></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card border">  
+                    <div class="card-header bg-primary">
+                        <h5><i class="fas fa-database fa=lg"></i> Timescale DB</h5>
+                    </div>
+                    <div class="card-body text-center"> 
+                        Not Implemented
+                    </div>
+                </div>
+
+                <div class="card border">  
+                    <div class="card-header bg-success">
+                        <h5><i class="fab fa-aws fa-2x"></i></h5>
+                    </div>
+                    <div class="card-body text-center"> 
+                        Not Implemented
+                    </div>
+                </div>
+
+        </div>
+      </div>
+
+    </main>
+
+    <footer>
+        <%- include('../partials/footer'); %>
+    </footer>
+
+</body>
+
+</html>

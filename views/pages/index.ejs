@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+    <script>
+        setTimeout(function(){
+           window.location.reload(1);
+        }, 60000);
+    </script>
+    <script>
+        $(document).ready(function(){
+          $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+</head>
+
+<body class="container pt-0 mt-0">
+
+        <%- include('../partials/header', {email:email, online:online, userUUID:userUUID, userToken:userToken}); %>
+
+        <%  var adminStatus = false; 
+        if ((userToken != null) && (userToken['cognito:groups'] != undefined)) {
+                userToken['cognito:groups'].forEach(group => {
+                    if (group === 'cc_employee_admin') {
+                        adminStatus = true;
+                    }
+                });
+        } %>
+
+    <% 
+    const cc_employee_admin = 2;
+    const cc_employee_cs = 3;
+    const cc_employee_buis = 4;
+    const cc_employee = 5;
+    const cc_customer = 99;
+    var accessLevel = cc_customer; 
+    var accessLable = "";   
+    if (userToken != null) { 
+      if (userToken['cognito:groups'] != undefined) {
+        userToken['cognito:groups'].forEach( group => {
+            if (group === 'cc_employee'){
+                if(cc_employee < accessLevel){
+                    accessLevel = cc_employee;
+                    accessLable = "Employee";
+                }
+            } 
+            if (group === 'cc_employee_buis' ){
+                if (cc_employee_buis < accessLevel){
+                    accessLevel = cc_employee_buis;
+                    accessLable = "Business";    
+                }
+            } 
+            if (group === 'cc_employee_cs'){
+                if (cc_employee_cs < accessLevel){
+                    accessLevel = cc_employee_cs;
+                    accessLable = "Customer Service";
+                }
+            }
+            if (group === 'cc_employee_admin'){
+                if (cc_employee_admin < accessLevel){
+                    accessLevel = cc_employee_admin;
+                    accessLable = "Admin";
+                }
+            }
+          });
+      } 
+    } %>
+
+        <div class="container-fluid bg-light">
+
+            <div class="table-responsive">
+                <table class="table mx-auto w-auto">    
+                    <tbody>      
+                        <tr>    
+                            <td>
+                            <% if (email != null && email != "" &&  userUUID != null && userUUID != ""){ %>
+                                <% if (accessLevel == cc_employee_admin) { %>
+                                    <!-- <h4><span class="badge badge-secondary"> Showing <span class="badge badge-pill badge-light"> <%- email %> &NonBreakingSpace;</span> ID <span class="badge badge-pill badge-light"> <%- userUUID %></span></span></h4> -->
+
+                                    <div class="row">
+                                        <div class="col">
+                                            <h4><span class="badge badge-secondary"> Showing <span class="badge badge badge-light"> <%- email %> </span></span></h4>
+                                        </div>
+                                        <div class="col">
+                                            <h4><span class="badge badge-secondary"> ID <span class="badge badge badge-light"> <%- userUUID %></span></span></h4>
+                                        </div>
+                                    </div>
+
+                                <% } 
+                                    else { %>
+                                        <h4><span class="badge badge-secondary"> Showing <span class="badge badge-pill badge-light"> <%- email %> </span></h4>
+                                <% } %>        
+
+                            <% } %>
+                            </td> 
+                        </tr>
+                    </tbody>
+                </table>    
+            </div>
+
+            <div class="table-responsive">
+                <% if(devices != null && devices.length > 0){ %>
+                    <table class="table mx-auto w-auto">
+                       
+                        <tbody>    
+                           
+                            <% 
+                            var count = 0;
+                            devices.forEach( device => { 
+                                let mcuFirmware = null;
+                                let wifiFirmware = null;
+                                let nickname = null;
+                                let rssi = null;
+                                let mode = null;
+                                let modeStr = null;
+                                let wifiNet = null;
+                                let ble = null;
+                                let timestamp = null;
+                                let deviceID = null;
+                                let MAC = null;
+                                let deviceType;
+                                let deviceCurrentSessionId = 0;
+                                let pillType = 'badge-danger';
+                                let icon = null;
+
+                                count++;
+
+                                if(device.mac != undefined){
+                                    MAC = device.mac;
+                                    let lowerMAC = device.mac.toLowerCase();
+                                    deviceID = "CampChef:" + lowerMAC.slice(8,10) + ":" + lowerMAC.slice(10,12);
+                                }
+
+                                if ((device.currentSession == undefined) || (device.currentSession.id == undefined)){
+                                    console.log("device.currentSession undefined");
+                                }
+                                else {
+                                    deviceCurrentSessionId = device.currentSession.id;
+                                }
+
+                                console.log('device info: ', device);
+
+                                if(device.shadow != undefined){
+
+                                    if(device.shadow.metadata != undefined && device.shadow.metadata.desired != undefined 
+                                                                           && device.shadow.metadata.desired.mode != undefined){
+                                        let utcLastConnect = (device.shadow.metadata.desired.mode.timestamp * 1000);
+                                        let localLastConnect =  new Date(parseInt(utcLastConnect) - parseInt(360 * 60 * 1000));
+                                        timestamp = localLastConnect.toLocaleDateString('us-EN') +' '+ localLastConnect.toLocaleTimeString('us-EN');
+                                    }
+
+                                    if(device.shadow.state.desired.nickname != undefined){
+                                        nickname = device.shadow.state.desired.nickname;
+                                    }
+                                
+                                    if(device.shadow.state.desired.wifi_rssi != undefined){
+                                        rssi = device.shadow.state.desired.wifi_rssi;
+                                    }
+
+                                    if(device.shadow.state.desired.wifi_network != undefined){
+                                        wifiNet = device.shadow.state.desired.wifi_network;
+                                    }
+
+                                    if(device.shadow.state.desired.ble_name != undefined){
+                                        ble = device.shadow.state.desired.ble_name;
+                                    }
+
+                                    if(device.shadow.state.desired.mode != undefined){
+                                        mode = device.shadow.state.desired.mode;
+                                        switch(mode){
+                                            case 0:
+                                                modeStr = "Startup";
+                                                icon = "fas fa-fire text-warning";
+                                                break;
+                                            case 1:
+                                                modeStr = "Standby";
+                                                icon = "fas fa-power-off text-success";
+                                                setTemp = '---';
+                                                setSmoke = '---';
+                                                break;
+                                            case 2:
+                                                modeStr = "Run";
+                                                pillType = 'badge-success';
+                                                icon = "fas fa-fire text-danger";
+                                                break;
+                                            case 3:
+                                                modeStr = "Feed";
+                                                icon = "fas fa-circle-notch fa-spin";
+                                                pillType = 'badge-warning';
+                                                setTemp = '---';
+                                                setSmoke = '---';
+                                                break;
+                                            case 4: 
+                                                modeStr = "Shutdown";
+                                                icon = "fas fa-fire text-info";
+                                                pillType = 'badge-warning';
+                                                setTemp = '---';
+                                                setSmoke = '---';
+                                                break;
+                                            case 5:
+                                                modeStr = "Reset";
+                                                pillType = 'badge-info';
+                                                setTemp = '---';
+                                                setSmoke = '---';
+                                                break;
+                                            case 6: 
+                                                modeStr = "Fan";
+                                                pillType = 'badge-success';
+                                                icon = 'fas fa-radiation fa-pulse';
+                                                setTemp = '---';
+                                                setSmoke = '---';
+                                                break;    
+                                        }
+                                    }
+
+                                    if( device.shadow.state.desired.characteristic != undefined){
+                                        
+                                        if(device.shadow.state.desired.characteristic.firmware != undefined && device.shadow.state.desired.characteristic.firmware.stm32 != undefined){
+                                            mcuFirmware = device.shadow.state.desired.characteristic.firmware.stm32;
+                                            if (mcuFirmware != '') {
+                                                deviceType = mcuFirmware.slice(0, 4).toUpperCase();
+                                            }
+
+                                        }
+                                        if(device.shadow.state.desired.characteristic.firmware != undefined && device.shadow.state.desired.characteristic.firmware.esp32 != undefined){
+                                            wifiFirmware = device.shadow.state.desired.characteristic.firmware.esp32;
+                                        }
+                                    }
+                                } %>
+                               
+                                <tr>
+                                    <td>
+                                        <div class="container">
+                                            <% if(device.heartbeat == undefined) { %>
+                                                <div class="card border border-danger">
+                                            <% }
+                                                else { %>
+                                                <div class="card border border-success">    
+                                            <% } %>  
+                                                <div class="card-header bg-secondary">
+                                                    <h6 class="card-title text-light"><%= nickname %></h6>
+                                                    <ul class="nav flex-column">
+                                                        <li>
+                                                            <ul class="nav nav pills">
+                                                                <% let deviceInfo = JSON.stringify(device); %>
+                                                                <% if(device.heartbeat != undefined) { %>
+                                                                        <li class="nav-item"><a class="nav-link" data-toggle="tooltip" title="Online"><span class="badge badge-pill badge-success text-body"><i class="fas fa-wifi"></i></i></span></a></li>                                                                       
+                                                                        <% if (accessLevel == cc_employee_admin || accessLevel == cc_employee_cs) { %> 
+                                                                            <li class="nav-item"><a class="nav-link" data-toggle="tooltip" title="View Current Values" href="/v3/view?mac=<%= device.mac %>&email=<%= email %>&userUUID=<%= userUUID %>"><i class="fas fa-binoculars text-body"></i></a></li>
+                                                                        <% } %>
+
+                                                                        <% if ((device.currentSession != undefined) && (device.currentSession.id != undefined)) { %>
+                                                                            <li class="nav-item"><a class="nav-link" data-toggle="tooltip" title="View Active Cook Graph" id="activeSession_<%= count %>" href="" ><i class="fas fa-chart-line text-warning"></i></a></li>
+                                                                            <script>
+                                                                                var time_offset = new Date().getTimezoneOffset();
+                                                                                var sessionHref = "/v3/records?email=<%= email %>&uuid=<%= userUUID %>&sessionId=<%= device.currentSession.id %>&mac=<%= MAC %>&tz_offset="+time_offset+"&refresh=1";
+                                                                                document.getElementById("activeSession_<%= count %>").setAttribute("href", sessionHref);
+                                                                            </script> 
+
+                                                                            <% if (mode == 1 && (deviceType == 'DAPX') && (accessLevel == cc_employee_admin)) { %>
+                                                                                <li class="nav-item"><a class="nav-link" data-toggle="tooltip" title="Stop Recording Session" onclick="endSession('<%= device.mac %>', '<%= deviceID %>')" ><i class="fas fa-chart-line text-danger"></i></a></li>
+                                                                            <% } %>
+                                                                        <% } 
+                                                                        else if((deviceType == 'DAPX') && (accessLevel == cc_employee_admin)){ %> 
+                                                                                <li class="nav-item"><a class="nav-link" data-toggle="tooltip" title="Start Recording Session" onclick="startSession('<%= device.mac %>', '<%= deviceID %>')" ><i class="fas fa-chart-line text-success"></i></a></li>
+                                                                        <% } %>
+                                                                <% } %>
+                                                            </ul>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div class="card-body">        
+                                                        <a class="nav-link text-dark" href="/v3/devices?deviceId=<%= deviceID %>"> <%= deviceID %> </a>
+                                        
+                                                        <div class="card-group">
+
+                                                            <div class="card-body">
+                                                                <ul class="nav flex-column">
+                                                                <% if(device.emails != undefined){
+                                                                    device.emails.forEach(email => { 
+                                                                        let encodedEmail = encodeURIComponent(email); %>
+                                                                        <li class="nav-item">
+                                                                            <a class="nav-link text-muted small" href="/v3/?email=<%= encodedEmail %>"> <%= email %> </a>
+                                                                        </li>
+                                                                    <% })
+                                                                } %>
+                                                                </ul>   
+                                                            </div>         
+                                                    
+                                                            <div class="card-body">
+                                                            <h6>Last Reported Snapshot</h6>
+                                                                <ul class="nav flex-column">
+                                                                    <li><small class="text-muted ">MAC</small> <%= MAC %></li>
+                                                                    <li><small class="text-muted">Last Connected</small> <%= timestamp %></li>
+                                                                    <li><small class="text-muted">WiFI Version</small> <%= wifiFirmware %></li>
+                                                                    <li><small class="text-muted">MCU Version</small> <%= mcuFirmware %></li>
+                                                                    <li><small class="text-muted">RSSI</small>
+
+                                                                    <% if ( rssi != null) { %>       
+                                                                    <% if (rssi > -50) { %>   
+                                                                        <span class="text-success"> Excellent
+                                                                    <% } else if ( rssi <= -50  && rssi > -60 ) { %>
+                                                                            <span class="text-primary"> Good
+                                                                    <%  } else if ( rssi <= -60  && rssi > -70 ) { %>
+                                                                            <span class="text-warning"> Fair
+                                                                    <%  } else if ( rssi <= -70) { %>
+                                                                            <span class="text-danger"> Weak
+                                                                    <%  } %> 
+                                                                    <i class="fas fa-wifi">  <%= rssi %> </i>   </span>
+                                                                    <% } %>
+                                                                    
+                                                                    </li>
+
+                                                                    <li><small class="text-muted">WiFi Network</small> <%= wifiNet %></li>
+                                                                    <!-- <li><small class="text-muted">BLE:</small> <%= ble %></li> -->
+                                                                    <% if(deviceType != '4PWI'){ %>
+                                                                     <li><small class="text-muted">Mode</small> <%= modeStr %>
+                                                                       
+                                                                    <% if ((icon != null) && (device.heartbeat != undefined)) { %>
+                                                                            <i class="<%= icon %>"></i>
+                                                                            <% if (modeStr == "Startup") { %>
+                                                                                <i id="mode" class="fas fa-long-arrow-alt-up"></i>
+                                                                            <% } %>
+                                                                            <% if (modeStr == "Shutdown") { %>
+                                                                                <i id="mode" class="fas fa-long-arrow-alt-down"></i>
+                                                                            <% } %>
+                                                                        <% } %>
+                                                                     </li>
+                                                                    <% } %>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <% if (accessLevel == cc_employee_admin ) { %>                                                  
+                                                            <a data-toggle="tooltip" title="Update Device" href="/v3/update?mac=<%= device.mac %>"><small class="text-muted"><i class="fas fa-file-export"></i> Update</small></a>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                        </div>       
+                                    </td>   
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <% } %>
+            </div>
+        </div>
+
+        <div class="modal fade" tabindex="-1" role="dialog" id="sessionModal">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Recording Session</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p id="sessionModalBodyText"></p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" id="cancelButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="button" id="okButton" class="btn btn-primary" data-dismiss="modal">Ok</button>
+                </div>
+              </div>
+            </div>
+        </div>
+
+
+        <script>
+
+            let cancelButton = document.getElementById("cancelButton");
+            let okButton = document.getElementById("okButton");
+            let session = {};
+           
+            function startSession(mac, nickname) {
+               
+               let str = `Start Recording Session for ${nickname}`;
+               session.mac = mac;
+               session.url = "https://iot.campchef.site/v3/start_session"
+              
+               document.getElementById("sessionModalBodyText").innerHTML = str;
+               $("#sessionModal").modal();  
+            };
+
+
+            function endSession(mac, nickname) {
+               
+                let str = `End Recording Session for ${nickname}`;
+                session.mac = mac;
+                session.url = "https://iot.campchef.site/v3/end_session";
+
+                document.getElementById("sessionModalBodyText").innerHTML = str;
+                $("#sessionModal").modal();
+            };
+
+            okButton.onclick = function(){
+                $.post(session.url,
+                    {
+                        mac: session.mac,
+                    },
+                    function (data) {
+                        alert(data.status);
+                        window.location.reload(1);
+                        // document.getElementById("updateRequestStatus").innerHTML = data;
+                        // $('.toast').toast('show');
+                    });
+            }
+
+       </script>
+
+</body>
+</html>

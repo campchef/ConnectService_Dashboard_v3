@@ -1,0 +1,27 @@
+{
+  "name": "connectservice_dashboard",
+  "version": "1.0.0",
+  "description": "Node App for monitoring service and troubleshooting customer issues.",
+  "main": "dashboard.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "form-urlencoded": "^6.0.3",
+    "formidable": "^2.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwk-to-pem": "^2.0.5",
+    "jwt-decode": "^3.1.2",
+    "lodash": "^4.17.21",
+    "md5": "^2.3.0",
+    "path": "^0.12.7",
+    "serve-favicon": "^2.5.0"
+  }
+}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+        <!-- <script>
+        setTimeout(function(){
+           window.location.reload(1);
+        }, 60000);
+    </script> -->
+        <script>
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+        </script>
+</head>
+
+<body class="container pt-0 mt-0">
+
+    <main>
+
+        <%- include('../partials/header', {email:email, userUUID:userUUID, userToken:userToken}); %>
+          
+        <div class="container-fluid bg-light">
+         
+            <div class="table-responsive">
+                <table class="table mx-auto w-auto">    
+                    <tbody>      
+                        <tr>    
+                            <td>    
+
+                                <div class="card border border-secondary "> 
+                                    <div class="card-header bg-secondary">
+                                        <h5 class="card-title text-light"> Latest Versions </h5>
+                                    </div>
+                                    <div class="card-body">
+                                            <div class="card-body">
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Model </th>
+                                                            <th>Version</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <% versions.forEach( (version) => { %>
+                                                        
+                                                        <tr>
+                                                            <td><%= Object.keys(version) %></td> <td><%= version[Object.keys(version)] %></td>
+                                                        </tr>
+                                                        
+                                                    <% }); %>
+                                                </table>
+
+                                            </div>
+                                    </div>
+                                    <div class="card-footer">
+
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>            
+                </table>
+        </div>
+
+
+        </div>
+    </main>
+
+    <footer>
+        <%- include('../partials/footer'); %>
+    </footer>
+
+</body>
+
+</html>

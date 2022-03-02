@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+    <script>
+
+setTimeout(function(){
+   window.location.reload(1);
+}, 30000);
+
+        </script>
+
+    <style>
+        .slidecontainer {
+            width: 50%;
+        }
+    </style>
+</head>
+
+<body class="container pt-0 mt-0">
+    
+ 
+ <%   
+    const cc_employee_admin = 2;
+    const cc_employee_cs = 3;
+    const cc_employee_buis = 4;
+    const cc_employee = 5;
+    const cc_customer = 99;
+    var accessLevel = cc_customer; 
+    var accessLable = "";   
+    if (userToken != null) { 
+      if (userToken['cognito:groups'] != undefined) {
+        userToken['cognito:groups'].forEach( group => {
+            if (group === 'cc_employee'){
+                if(cc_employee < accessLevel){
+                    accessLevel = cc_employee;
+                    accessLable = "Employee";
+                }
+            } 
+            if (group === 'cc_employee_buis' ){
+                if (cc_employee_buis < accessLevel){
+                    accessLevel = cc_employee_buis;
+                    accessLable = "Business";    
+                }
+            } 
+            if (group === 'cc_employee_cs'){
+                if (cc_employee_cs < accessLevel){
+                    accessLevel = cc_employee_cs;
+                    accessLable = "Customer Service";
+                }
+            }
+            if (group === 'cc_employee_admin'){
+                if (cc_employee_admin < accessLevel){
+                    accessLevel = cc_employee_admin;
+                    accessLable = "Admin";
+                }
+            }
+          });
+      } 
+    } %>
+
+
+    <main>
+
+        <%- include('../partials/header', {email:email, userUUID:userUUID, userToken:userToken}); %>
+            <% 
+                let nickname = null;
+                let wifiFirmware = null;
+                let mcuFirmware = null;               
+                let deviceID = null;
+                let grillMac = null;
+                let deviceType;
+                let deviceTypeName = '';
+                let dssd = null;
+                let modeStr = '';
+                let pillType = 'badge-danger';
+                let icon = null;
+                let setTemp = '---';
+                let setSmoke = '---';
+                let tempSliderMin;
+                let tempSliderMax;
+
+                if(device.shadow.state.desired != undefined) {
+                    dssd = device.shadow.state.desired;
+
+                    if(device.mac != undefined){
+                        grillMac = device.mac;
+                        let lowerMAC = device.mac.toLowerCase();
+                        deviceID = "CampChef:" + lowerMAC.slice(8,10) + ":" + lowerMAC.slice(10,12);
+                    }
+
+                    if( dssd.characteristic != undefined){
+
+                        tempSliderMin = dssd.characteristic.setting.temp_min - 10;
+                        tempSliderMax = dssd.characteristic.setting.temp_max;
+                                                
+                        if(dssd.characteristic.firmware != undefined && dssd.characteristic.firmware.stm32 != undefined){
+                            mcuFirmware = device.shadow.state.desired.characteristic.firmware.stm32;
+                            if (mcuFirmware != '') {
+                                deviceType = mcuFirmware.slice(0, 4).toUpperCase();
+                                
+                                switch (deviceType) { 
+                                    case '4PWI':
+                                        deviceTypeName = '4-Probe WiFi Thermometer';
+                                        break;
+                                    case 'CPPG':
+                                        deviceTypeName = 'Woodwind 20';
+                                        break;
+                                    case 'CDLX':
+                                        deviceTypeName = 'Woodwind';
+                                        break;
+                                    case 'F0YW':
+                                        deviceTypeName = 'Portable';
+                                        break;
+                                    case 'F1YW':
+                                        deviceTypeName = 'Gen 2 - DLX/SG';
+                                        break;
+                                    case 'F3YW':
+                                        deviceTypeName = 'Gen2 - XXL';
+                                    case 'G0YW':
+                                        
+                                        break;
+                                    case 'G1YW':
+                                    deviceTypeName = 'Gen3 - MGZ';
+                                        break;
+                                    case 'CAPX':
+                                    case 'DAPX':
+                                        deviceTypeName = 'Apex';
+                                        break;    
+                                    
+                                    default:
+                                        deviceTypeName = deviceType;
+                                        break;
+                                }
+                            }
+
+                        }
+                        if(dssd.characteristic.firmware != undefined && dssd.characteristic.firmware.esp32 != undefined){
+                            wifiFirmware = dssd.characteristic.firmware.esp32;
+                        }
+                    }
+
+                    if(dssd.nickname != undefined){
+                        nickname = dssd.nickname;
+                    }
+
+                    if (deviceType != '4PWI'){
+                     
+                        if (dssd.set_temperature == (dssd.characteristic.setting.temp_min - 10)){
+                                        
+                            setTemp = 'Low Smoke';
+                            setSmoke = '---';
+                        }
+                        else if (dssd.set_temperature == (dssd.characteristic.setting.temp_min - 5)){
+                            setTemp = 'High Smoke';
+                            setSmoke = '---';
+                        }
+                        else if ((dssd.set_temperature > 350) && (dssd.set_temperature == dssd.characteristic.setting.temp_max)){ 
+                            setTemp = 'High';
+                            setSmoke = '---';
+                        }    
+                        else {
+                            setTemp = dssd.set_temperature;
+                            setSmoke = dssd.control.smoke_multiplier;
+                        }        
+                    }
+                        
+                    switch(dssd.mode){
+                        case 0:
+                            modeStr = "Startup";
+                            icon = "fas fa-fire text-warning";
+                            break;
+                        case 1:
+                            modeStr = "Standby";
+                            icon = "fas fa-power-off text-success";
+                            setTemp = '---';
+                            setSmoke = '---';
+                            break;
+                        case 2:
+                            modeStr = "Run";
+                            pillType = 'badge-success';
+                            icon = "fas fa-fire text-danger";
+                            break;
+                        case 3:
+                            modeStr = "Feed";
+                            icon = "fas fa-circle-notch fa-spin";
+                            pillType = 'badge-warning';
+                            setTemp = '---';
+                            setSmoke = '---';
+                            break;
+                        case 4: 
+                            modeStr = "Shutdown";
+                            icon = "fas fa-fire text-info";
+                            pillType = 'badge-warning';
+                            setTemp = '---';
+                            setSmoke = '---';
+                            break;
+                        case 5:
+                            modeStr = "Reset";
+                            pillType = 'badge-info';
+                            setTemp = '---';
+                            setSmoke = '---';
+                            break;
+                        case 6: 
+                            modeStr = "Fan";
+                            pillType = 'badge-success';
+                            icon = 'fas fa-radiation fa-pulse';
+                            setTemp = '---';
+                            setSmoke = '---';
+                            break;    
+                    }                    
+                } 
+            %>
+
+    <div class="container-fluid">  
+        <br>
+        <div class="card">
+
+            <% if (dssd.fault.flame == 1 || dssd.rtd == 1 || dssd.over_temp == 1) { %>
+                <div class="card-header bg-danger">
+            <% } else { %>
+                <div class="card-header">
+            <% } %>    
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm">
+                            <small class="text-muted ">Device Nickname</small> 
+                            <h5><%= nickname %></h5>
+                        </div>
+                        <div class="col-sm">
+                            <small class="text-muted ">Model</small> 
+                            <h5><%= deviceTypeName %></h5>
+                        </div> 
+                        <div class="col-sm">
+                            <small class="text-muted ">MAC</small> 
+                            <h5> <%= grillMac %> </h5>
+                        </div> 
+   
+                        <div class="col-sm">
+                            <% if (dssd.pellet_level != undefined && dssd.pellet_level != 0) { %>
+                                
+                                <small class="text-muted ">Pellet Level</small>
+                                   
+                                <% if (dssd.pellet_level <= 20 ) { %>
+                                    <p><%= dssd.pellet_level %></p> 
+                                    <h5 class="fa-rotate-270" style="display: inline-block;">
+                                        <i class="fas fa-signal  fa-flip-vertical text-danger"></i> 
+                                    </h5>    
+                                <% } 
+                                else { %>
+                                    <p><%= dssd.pellet_level %></p> 
+                                    <h5 class="fa-rotate-270" style="display: inline-block;">
+                                        <i class="fas fa-signal  fa-flip-vertical text-success"></i> 
+                                    </h5>
+                                     
+                                <% } %> 
+                            <% } %>
+                        </div> 
+                        
+                        <% if (dssd.fault.flame == 1 || dssd.fault.rtd == 1 || dssd.fault.over_temp == 1) { %>
+                            <div class="col-sm">
+                                <small class="text-muted">Error</small>                                 
+                               
+                                    <% if (dssd.fault.flame == 1) { %>
+                                        <h3>Flame Out!</h3>
+                                    <% } else if (dssd.fault.rtd == 1) { %>
+                                        <h3>RTD Malfunction!</h3>
+                                    <% } else if (dssd.fault.over_temp == 1) { %>
+                                        <h3>Over Temp!</h3>
+                                    <% } %>    
+                            </div>        
+                        <% } %>
+
+                        <% if ( deviceType != '4PWI' && accessLevel == cc_employee_admin && (dssd.mode == 2 || dssd.mode == 6)) { %>
+                            <div class="col-sm">
+                                <button type="button" class="btn btn-outline-danger" id="shutdownButton" onclick="shutdown('<%= nickname %>')" >Shutdown <%= nickname %></button>
+                            </div>
+                        <% } %> 
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="card-body"> 
+                <div class="container-fluid">
+                <% if (deviceType != '4PWI') { %> 
+
+                    <div class="row">
+                        <div class="col-sm">
+                            <span class="text-muted"><%= modeStr %></span>
+                            <h5>
+                                <% if (icon != null) { %>
+                                    <i class="<%= icon %>"></i>
+                                    <% if (dssd.mode == 0) { %>
+                                        <i id="mode" class="fas fa-long-arrow-alt-up"></i>
+                                    <% } %>
+                                    <% if (dssd.mode == 4) { %>
+                                        <i id="mode" class="fas fa-long-arrow-alt-down"></i>
+                                    <% } %>
+                                <% }
+                                    else { %>
+                                    <i id="mode" class=""></i>    
+                                    <span class="badge badge-pill <%= pillType %>"> <%= modeStr %> </span>
+                                <% } %>
+                            </h5> 
+                        </div>
+                        <% if (dssd.mode == 6) { %>
+                        <div class="col-sm">    
+                                <span class="text-muted">Fan Speed</span> 
+                                <h5>
+                                    <span class="badge badge-pill badge-warning" id="fanBadge">  <%= dssd.control.fan_level %> </span>
+                                </h5> 
+        
+
+                                <% if ( accessLevel == cc_employee_admin) { %>
+                                <div class="slidecontainer">
+                                    <input type="range" class="custom-range" min="0" max="5" step="1" value="<%= dssd.control.fan_level %>" class="slider" id="fanRange">
+                                    <button type="button" class="btn btn-outline-secondary" id="fanButton" disabled>Set</button>
+                                </div>
+                                <% } %>
+
+                        </div> 
+                        <% } %>
+                        <div class="col-sm">
+                            <span class="text-muted">Temperature</span> 
+                            <h5>  
+                                <% if (deviceType == '4PWI') { %>
+                                    <span class="badge badge-pill badge-danger"> --- </span>
+                                <% } 
+                                else { %>
+                                    <span class="badge badge-pill badge-danger"> <%= dssd.temp.chamber %> </span>
+                                <% } %>     
+                            </h5>
+                        </div> 
+                        <% if ( deviceType != '4PWI' && dssd.mode == 2) { %>
+                        <div class="col-sm">
+                            <span class="text-muted">Set Temp</span> 
+                            <h5>
+                                <span class="badge badge-pill badge-danger" id="tempBadge">  <%= setTemp %> </span>
+                            </h5>
+
+                            <% if ( accessLevel == cc_employee_admin) { %>
+                            <div class="slidecontainer">
+                                <% 
+                                    var disableSlide = 'disabled';
+                                    if (dssd.mode == 2) {
+                                        disableSlide = '';
+                                    } 
+                                %>
+                                <input type="range" class="custom-range" min="<%= tempSliderMin %>" max="<%= tempSliderMax %>" step="5" value="<%= dssd.set_temperature %>" class="slider" id="tempRange" <%= disableSlide %> >
+                                <button type="button" class="btn btn-outline-danger" id="tempButton" disabled>Set</button>
+                            </div>
+                            <% } %>
+
+                        </div> 
+                        <div class="col-sm">
+                            <span class="text-muted">Set Smoke</span> 
+                            <h5>
+                                <span class="badge badge-pill badge-secondary" id="smokeBadge">  <%= setSmoke %> </span>
+                            </h5> 
+
+                            <% if ( accessLevel == cc_employee_admin) { %>
+                            <div class="slidecontainer">
+                                <input type="range" class="custom-range" min="1" max="10" step="1" value="<%= dssd.control.smoke_multiplier %>" class="slider" id="smokeRange" <%= disableSlide %> >
+                                <button type="button" class="btn btn-outline-secondary" id="smokeButton" disabled>Set</button>
+                            </div>
+                            <% } %>
+
+                        </div> 
+                        <% } %>
+                        
+                        <% if ( deviceType != '4PWI' && (dssd.mode == 2 || dssd.mode == 6)) { %>
+                        <div class="col-sm">
+                            <h6 class="badge badge-pill badge-secondary" id="maxTemp">Max Temp <span class="badge badge-pill badge-light"> <%= dssd.characteristic.setting.temp_max %> </span></h6>
+                            <h6 class="badge badge-pill badge-secondary" id="minTemp">Min Temp <span class="badge badge-pill badge-light"> <%= dssd.characteristic.setting.temp_min %> </span></h6>
+                        </div>
+                        <% } %>
+                    </div>
+                    <hr>
+                    <% } %>
+                    <div class="row">
+                        <div class="col-sm">
+                            <span class="text-muted">Probe 1: <%= dssd.probe.probe1.name %></span> 
+                            <h5>
+                                <% if (((dssd.probe.probe1.goal - dssd.probe.probe1.temp) <= 5) && (dssd.probe.probe1.goal > dssd.probe.probe1.temp) && (dssd.probe.probe1.goal > 0 )){ %>
+                                    <span class="badge badge-pill badge-dark text-danger"> <%= dssd.probe.probe1.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe1.goal %> </span>
+                                    </span>  
+                               <% }
+                                else if ((dssd.probe.probe1.temp >= dssd.probe.probe1.goal) && (dssd.probe.probe1.goal > 0)) { %>
+                                    <span class="badge badge-pill badge-danger"> <%= dssd.probe.probe1.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe1.goal %> </span>
+                                    </span>  
+                               <% } 
+                                  else { %>
+                                    <span class="badge badge-pill badge-secondary"> <%= dssd.probe.probe1.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe1.goal %> </span>
+                                    </span>    
+                                <% } %>
+                            </h5>
+                        </div>
+                        <div class="col-sm">
+                            <span class="text-muted">Probe 2: <%= dssd.probe.probe2.name %></span>  
+                            <h5>
+                                <% if (((dssd.probe.probe2.goal - dssd.probe.probe2.temp) <= 5) && (dssd.probe.probe2.goal > dssd.probe.probe2.temp) && (dssd.probe.probe2.goal > 0 )) { %>
+                                    <span class="badge badge-pill badge-dark text-danger"> <%= dssd.probe.probe2.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe2.goal %> </span>
+                                    </span>  
+                               <% }
+                                else if ((dssd.probe.probe2.temp >= dssd.probe.probe2.goal) && (dssd.probe.probe2.goal > 0)){ %>
+                                    <span class="badge badge-pill badge-danger"> <%= dssd.probe.probe2.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe2.goal %> </span>
+                                    </span>  
+                               <% } 
+                                  else { %>
+                                    <span class="badge badge-pill badge-secondary"> <%= dssd.probe.probe2.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe2.goal %> </span>
+                                    </span>    
+                                <% } %>
+                            
+                            </h5>
+                        </div>
+                    <% if (deviceType == 'CDLX' || deviceType == 'CPPG' || deviceType == '4PWI' || deviceType == 'CAPX' || deviceType == 'DAPX') { %>
+                        <div class="col-sm">
+                            <span class="text-muted">Probe 3: <%= dssd.probe.probe3.name %></span> 
+                            <h5>
+                                <% if (((dssd.probe.probe3.goal - dssd.probe.probe3.temp) <= 5) && (dssd.probe.probe3.goal > dssd.probe.probe3.temp) && (dssd.probe.probe3.goal > 0 )){ %>
+                                    <span class="badge badge-pill badge-dark text-danger"> <%= dssd.probe.probe3.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe3.goal %> </span>
+                                    </span>  
+                               <% }
+                                else if ((dssd.probe.probe3.temp >= dssd.probe.probe3.goal) && (dssd.probe.probe3.goal > 0)) { %>
+                                    <span class="badge badge-pill badge-danger"> <%= dssd.probe.probe3.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe3.goal %> </span>
+                                    </span>  
+                               <% } 
+                                  else { %>
+                                    <span class="badge badge-pill badge-secondary"> <%= dssd.probe.probe3.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe3.goal %> </span>
+                                    </span>    
+                                <% } %>
+                            </span>
+                            </h5>
+                        </div>
+                        <div class="col-sm">
+                            <span class="text-muted">Probe 4: <%= dssd.probe.probe4.name %></span>  
+                            <h5>
+                                <% if (((dssd.probe.probe4.goal - dssd.probe.probe4.temp) <= 5) && (dssd.probe.probe4.goal > dssd.probe.probe4.temp) && (dssd.probe.probe4.goal > 0 )){ %>
+                                    <span class="badge badge-pill badge-dark text-danger"> <%= dssd.probe.probe4.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe4.goal %> </span>
+                                    </span>  
+                               <% }
+                                else if ((dssd.probe.probe4.temp >= dssd.probe.probe4.goal) && (dssd.probe.probe4.goal > 0)) { %>
+                                    <span class="badge badge-pill badge-danger"> <%= dssd.probe.probe4.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe4.goal %> </span>
+                                    </span>  
+                               <% } 
+                                  else { %>
+                                    <span class="badge badge-pill badge-secondary"> <%= dssd.probe.probe4.temp %> 
+                                        <span class="badge badge-pill badge-light"> <%= dssd.probe.probe4.goal %> </span>
+                                    </span>    
+                                <% } %>
+                            </h5>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div> 
+
+<div class="toast" role="alert" data-autohide="false">
+    <div class="toast-header">
+        Update Status
+    </div>
+    <div class="toast-body">
+        <p id="updateRequestStatus">Some text inside the toast body</p>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="shutdownModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Shutdown <%= nickname %></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p id="shutdownModalBodyText"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="cancelButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" id="shutdownConfirmButton" class="btn btn-primary" data-dismiss="modal">shutdown</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+     <script>
+
+        var min_temp = <%= dssd.characteristic.setting.temp_min %>;
+        var max_temp = <%= dssd.characteristic.setting.temp_max %>;
+
+       <% if (dssd.mode == 2) { %> 
+
+        var tempSlider  =  document.getElementById("tempRange");
+        var smokeSlider =  document.getElementById("smokeRange");
+        var tempButton  = document.getElementById("tempButton");
+        var smokeButton = document.getElementById("smokeButton");
+        var tempBadge   = document.getElementById("tempBadge");
+        var smokeBadge  = document.getElementById("smokeBadge");
+        var tempValue  = tempSlider.value;
+        var smokeValue = smokeSlider.value;
+        var shutdownButton = document.getElementById("shutdownButton");
+        var shutdownConfirmButton = document.getElementById("shutdownConfirmButton");
+
+        tempSlider.oninput = function () {
+
+            tempValue = this.value;
+            shutdownButton.disabled = true;
+            tempButton.disabled = false;
+            smokeButton.disabled = true;
+            smokeSlider.disabled = true;
+
+            if (tempValue == max_temp && max_temp > 350) {
+                tempBadge.innerHTML = "High";
+                smokeBadge.innerHTML = "Smoke Disabled";
+            }
+            else if (tempValue >= 300 ) {
+                tempBadge.innerHTML = tempValue;
+                smokeBadge.innerHTML = "Smoke Disabled";
+            }
+            else if (tempValue == (min_temp - 10)) {
+                tempBadge.innerHTML = "Low Smoke";
+                smokeValue = 2;
+                smokeBadge.innerHTML = '---';
+                smokeSlider.value = smokeValue;
+            }
+            else if (tempValue == (min_temp - 5)) {
+                tempBadge.innerHTML = "High Smoke";
+                smokeValue = 3;
+                smokeBadge.innerHTML = '---';
+                smokeSlider.value = smokeValue;
+            }
+            else {
+                tempBadge.innerHTML = tempValue;
+                smokeBadge.innerHTML = smokeValue;
+                smokeSlider.value = smokeValue;
+                //smokeButton.disabled = false;
+                //smokeSlider.disabled = false;
+            }
+            
+        };
+
+        smokeSlider.oninput = function () {
+            smokeValue = this.value;
+            shutdownButton.disabled = true;
+            smokeButton.disabled = false;
+            tempSlider.disabled = true;
+            tempButton.disabled = true;
+
+            if (tempValue >= 300) {
+                if ((tempValue == max_temp) && ( max_temp > 350)) {
+                    tempBadge.innerHTML = 'High';
+                }
+                else {
+                    tempBadge.innerHTML = tempValue;
+                }
+                smokeBadge.innerHTML = "Smoke Disabled";
+            }
+            else if (tempValue == ( min_temp - 10) ) {
+                tempValue = 160;
+                tempBadge.innerHTML = tempValue;
+                tempSlider.value = tempValue
+                smokeBadge.innerHTML = smokeValue;
+            }
+            else if (tempValue == ( min_temp - 5) ) {
+                tempValue = 220;
+                tempBadge.innerHTML = tempValue;
+                tempSlider.value = tempValue;
+                smokeBadge.innerHTML = smokeValue;
+            }
+            else {
+                smokeBadge.innerHTML = smokeValue;
+            }
+        };
+
+        tempButton.onclick = function () {
+            let alertStr = `temp: ${tempValue}`;
+            if (tempValue == 500) {
+                alertStr = 'High';
+            }
+            else if (tempValue == ( min_temp - 10) ) {
+                alertStr = 'Low Smoke';
+            }
+            else if (tempValue == ( min_temp - 5) ) {
+                alertStr = 'High Smoke';
+            }
+
+            //alert(`temp: ${tempValue}, smoke: ${smokeValue}`);
+            tempButton.disabled = true;
+
+            $.post("https://iot.campchef.site/v3/control", 
+            {
+                temp: tempValue,
+                mac: '<%= grillMac %>'
+            },
+            function(data, status){
+                document.getElementById("updateRequestStatus").innerHTML = status;
+                $('.toast').toast('show');
+                reloadWin();
+            });
+
+        }
+
+        smokeButton.onclick = function () {
+            let alertStr = `smoke: ${smokeValue}`;
+
+            //alert(`temp: ${tempValue}, smoke: ${smokeValue}`);
+            smokeButton.disabled = true;
+
+            $.post("https://iot.campchef.site/v3/control", 
+            {
+                smoke: smokeValue,
+                mac: '<%= grillMac %>'
+            },
+            function(data, status){
+                document.getElementById("updateRequestStatus").innerHTML = status;
+                $('.toast').toast('show');
+                reloadWin();
+            });
+        }
+        <% }
+            else if (dssd.mode == 6) { %>
+
+            var fanSlider   =   document.getElementById("fanRange");
+            var fanButton   = document.getElementById("fanButton");
+            var fanBadge    =  document.getElementById("fanBadge");
+            var fanValue    = fanSlider.value;    
+
+            fanSlider.oninput = function () {
+                fanValue = this.value;
+                shutdownButton.disabled = true; 
+                fanButton.disabled = false; 
+                fanBadge.innerHTML = fanValue;       
+            };
+
+            fanButton.onclick = function () {
+                fanButton.disabled = true;
+
+                $.post("https://iot.campchef.site/v3/control", 
+                {
+                    fan: fanValue,
+                    mac: '<%= grillMac %>'
+                },
+                function(data, status){
+                    document.getElementById("updateRequestStatus").innerHTML = status;
+                    $('.toast').toast('show');
+                    reloadWin();
+                    
+                });
+            }
+
+        <% } %>
+
+
+        function shutdown(name) {
+                let str = `Shutdown ${name}`;
+                document.getElementById("shutdownModalBodyText").innerHTML = str;
+                $("#shutdownModal").modal();
+            };
+
+        shutdownConfirmButton.onclick = function () {
+            let alertStr = `Shutdown`;
+
+            $.post("https://iot.campchef.site/v3/control", 
+            {
+                mode: 4,
+                mac: '<%= grillMac %>'
+            },
+            function(data, status){
+                document.getElementById("updateRequestStatus").innerHTML = JSON.stringify(status);
+                $('.toast').toast('show');
+                reloadWin();
+            });
+        }
+
+        function reloadWin() {
+            setTimeout(function () {
+                window.location.reload(1);
+            }, 1500);
+        }
+         
+    </script>
+
+
+
+    </main>
+
+    <footer>
+        <%- include('../partials/footer'); %>
+    </footer>
+
+</body>
+
+</html>

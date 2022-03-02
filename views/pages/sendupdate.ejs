@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container pt-0 mt-0">
+
+    <main>
+
+        <%- include('../partials/header', {email:email, userUUID:userUUID, userToken:userToken}); %>
+
+        <div class="container-fluid">
+            <span class="text-muted">status <h5><%= sendStatus %></h5> 
+        </div>
+
+    </main>
+
+    <footer>
+        <%- include('../partials/footer'); %>
+    </footer>
+
+</body>
+
+</html>

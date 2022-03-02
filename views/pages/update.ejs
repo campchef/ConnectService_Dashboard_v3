@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container pt-0 mt-0">
+
+    <main>
+
+        <%- include('../partials/header', {email:email, userUUID:userUUID, userToken:userToken}); %>
+
+        <% 
+            let nickname = null;
+            let wifiFirmware = null;
+            let mcuFirmware = null;               
+            let deviceID = null;
+            let MAC = null;
+            let deviceType;
+
+            if(device.mac != undefined){
+                MAC = device.mac;
+                let lowerMAC = device.mac.toLowerCase();
+                deviceID = "CampChef:" + lowerMAC.slice(8,10) + ":" + lowerMAC.slice(10,12);
+            }
+
+            if( device.shadow.state.desired.characteristic != undefined){
+                                        
+                if(device.shadow.state.desired.characteristic.firmware != undefined && device.shadow.state.desired.characteristic.firmware.stm32 != undefined){
+                    mcuFirmware = device.shadow.state.desired.characteristic.firmware.stm32;
+                    if (mcuFirmware != '') {
+                        deviceType = mcuFirmware.slice(0, 4).toUpperCase();
+                    }
+
+                }
+                if(device.shadow.state.desired.characteristic.firmware != undefined && device.shadow.state.desired.characteristic.firmware.esp32 != undefined){
+                    wifiFirmware = device.shadow.state.desired.characteristic.firmware.esp32;
+                }
+
+                if(device.shadow.state.desired.nickname != undefined){
+                    nickname = device.shadow.state.desired.nickname;
+                }
+            }
+        %>
+           
+
+
+        <div class="container-fluid">  
+            <br>
+            <div class="card">
+                <div class="card-header"> 
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm">
+                                <small class="text-muted ">Device Nickname</small> 
+                                <h5><%= nickname %></h5>
+                            </div>
+                            <div class="col-sm">
+                                <small class="text-muted ">Device Type</small> 
+                                <h5><%= deviceType %></h5>
+                            </div>
+                            <div class="col-sm">
+                                <small class="text-muted ">MAC</small> 
+                                <h5><%= MAC %></h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body"> 
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm">
+                                <ul class="nav flex-column">
+                                    <li><small class="text-muted">WiFi Version</small> <%= wifiFirmware %></li>
+                                    <li><small class="text-muted">Latest</small> <%= device.updates.espUpdates.latest %></li>
+                                    <li><small class="text-muted">Available Versions</small></li>
+                                    <% for (const key in device.updates.espUpdates.alternate) { %>
+                                        <li>
+                                            <!-- <a  href="/v3/sendupdate?mac=<%= device.mac %>&part=esp&version=<%= JSON.stringify(device.updates.espUpdates.alternate[key]) %>"><%= key %></a> -->
+                                            <button type="button" class="btn btn-link" onclick="sendUpdate('<%= device.mac %>', 'esp', '<%= JSON.stringify(device.updates.espUpdates.alternate[key]) %>', '<%= key %>', '<%= nickname %>')"> <%= key %></button>
+                                        </li>
+                                    <% } %>
+                                </ul>
+                            </div>
+                            <div class="col-sm">
+                                <ul class="nav flex-column">
+                                    <li><small class="text-muted">MCU Version</small> <%= mcuFirmware %></li>
+                                    <li><small class="text-muted">Latest</small> <%= device.updates.stmUpdates.latest %></li>
+                                    <li><small class="text-muted">Available Versions</small></li>
+                                    <% for (const key in device.updates.stmUpdates.alternate) { %>
+                                        <li>
+                                            <!-- <a href="/v3/sendupdate?mac=<%= device.mac %>&part=stm&version=<%= JSON.stringify(device.updates.stmUpdates.alternate[key]) %>"> <%= key %> </a> -->
+                                            <button type="button" class="btn btn-link" onclick="sendUpdate('<%= device.mac %>', 'stm', '<%= JSON.stringify(device.updates.stmUpdates.alternate[key]) %>', '<%= key %>', '<%= nickname %>')"> <%= key %></button>
+                                        </li>
+                                    <% } %>
+                                </ul>
+                            </div>
+                            <div class="col-sm">
+                                <ul class="nav flex-column">
+                                    <li><small class="text-muted">MCU Dev Versions</small></li>
+                                    <% for (const key in device.updates.stmUpdates.dev) { %>
+                                        <li>
+                                            <!-- <a href="/v3/sendupdate?mac=<%= device.mac %>&part=stm&version=<%= JSON.stringify(device.updates.stmUpdates.dev[key]) %>"> <%= key %> </a> -->
+                                            <button type="button" class="btn btn-link" onclick="sendUpdate('<%= device.mac %>', 'stm', '<%= JSON.stringify(device.updates.stmUpdates.dev[key]) %>', '<%= key %>', '<%= nickname %>')"> <%= key %></button>
+                                        </li>
+                                    <% } %>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+            </div> 
+        </div>  
+        <div class="toast" role="alert" data-delay="2000">
+            <div class="toast-header">
+              Update Status
+            </div>
+            <div class="toast-body">
+              <p id="updateRequestStatus">Some text inside the toast body</p>
+            </div>
+        </div>
+        <div class="modal fade" tabindex="-1" role="dialog" id="updateModal">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Update <%= nickname %></h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p id="updateModalBodyText"></p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" id="cancelButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="button" id="updateButton" class="btn btn-primary" data-dismiss="modal">Update</button>
+                </div>
+              </div>
+            </div>
+        </div>
+        
+
+        <script>
+           
+            let cancelButton = document.getElementById("cancelButton");
+            let updateButton = document.getElementById("updateButton");
+            let updateInfo = {};
+
+            function sendUpdate(mac, part, urlObj, key, name) {
+                let devicePart = 'MCU';
+                if (part == 'esp'){
+                    devicePart = 'WIFI';
+                }
+               
+                let str = `Update ${name} ${devicePart} to version ${key}`;
+                
+                updateInfo.mac = mac;
+                updateInfo.part = part;
+                updateInfo.urlObj = urlObj;
+                
+                document.getElementById("updateModalBodyText").innerHTML = str;
+                $("#updateModal").modal();
+                
+            };
+
+            updateButton.onclick = function () {
+                $.post("https://iot.campchef.site/v3/sendupdate",
+                    {
+                        mac: updateInfo.mac,
+                        part: updateInfo.part,
+                        version: updateInfo.urlObj
+                    },
+                    function (data, status) {
+                        //alert("Status: " + status);
+                        document.getElementById("updateRequestStatus").innerHTML = data;
+                        $('.toast').toast('show');
+                    });
+            }
+
+            // $("#updateModal").on('hidden.bs.modal', function (e) {
+            //     alert("modal alert");
+            // });
+
+            // function reloadWin() {
+            //     setTimeout(function () {
+            //         window.location.reload(1);
+            //     }, 1500);
+            // };
+
+        </script>
+
+    </main>
+</body>    
+
+<footer>
+    <%- include('../partials/footer'); %>
+</footer>
+
+
+
+</html>

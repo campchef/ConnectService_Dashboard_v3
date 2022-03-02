@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container pt-0 mt-0">
+
+    <main>
+
+        <%- include('../partials/header', {email: "", deviceId: "", userUUID: "", userToken:userToken}); %>
+
+        <div class="jumbotron">
+            <h1>Connect Service - FAQ</h1>
+            <ul>
+                <% faqData.forEach(function(datapoint) { %>
+                    <li>
+                        <strong>
+                            <%= datapoint.question %>
+                        </strong>
+                        <p><%= datapoint.answer %></p>
+                    </li>
+                <% }); %>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <%- include('../partials/footer'); %>
+    </footer>
+
+</body>
+
+</html>

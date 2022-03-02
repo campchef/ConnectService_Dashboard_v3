@@ -1,0 +1,425 @@
+{
+    "esp": {
+        "latest": "2.0.0",
+        "prerelease": "2.0.0",
+        "intermediate": null,
+        "alternate": [
+            "2.0.0",
+            "2.2.3-dev",
+            "1.3.2"
+        ],
+        "versions": {
+            "2.0.0": {
+                "url": "https://ota.campchef.site/esp/esp_2_0_0.bin",
+                "md5sum": "0b6b6d528de0cb4375b9850b49304fdb",
+                "published": "2021-08-31"
+            },
+            "2.2.3-dev": {
+                "url": "https://ota.campchef.site/esp/esp_2_2_3-dev.bin",
+                "md5sum": "1a8f9b5477d137706121acbb70be061d",
+                "published": "2021-08-18"
+            },
+            "1.3.2": {
+                "url": "https://ota.campchef.site/esp/esp_1.3.2.bin",
+                "md5sum": "5660e328d2eb551d3c7d1e50b47ed02f",
+                "published": "2021-09-08"
+            }
+        }
+    },
+    "cdlx": {
+        "latest": "1.1.1",
+        "prerelease": "1.1.3",
+        "intermediate": null,
+        "alternate": [
+            "2.0.0A",
+            "1.1.1",
+            "1.1.3",
+            "1.1.2",
+            "1.1.3GD",
+            "1.1.2GD",
+            "0.2.1A",
+            "0.3.2A",
+            "0.3.2B"
+        ],
+        "versions": {
+            "1.1.3": {
+                "url": "https://ota.campchef.site/stm/CDLX_V1_1_3.bin",
+                "md5sum": "3c66a7e29fe76ae9f8160a0d3c315bdb",
+                "published": "2021-05-24"
+            },
+            "1.1.3GD": {
+                "url": "https://ota.campchef.site/stm/CDLX_V1_1_3GD.bin",
+                "md5sum": "16f8ae77553ff9d42ee399fc430f1d73",
+                "published": "2021-05-11"
+            },
+            "1.1.2GD": {
+                "url": "https://ota.campchef.site/stm/CDLX_V1_1_2GD.bin",
+                "md5sum": "1b3e22ad5fd2d8b099e8963bf5c0ed89",
+                "published": "2021-05-12"
+            },
+            "1.1.2": {
+                "url": "https://ota.campchef.site/stm/CDLX_V1_1_2.bin",
+                "md5sum": "0e2060816c300c866e6318389378283a",
+                "published": "2021-04-13"
+            },
+            "2.0.0A": {
+                "url": "https://ota.campchef.site/stm/CDLX_V2_0_0A.bin",
+                "md5sum": "f8422d6dacec11572e188e07ff2dfa2e",
+                "published": "2020-12-03"
+            },
+            "1.1.1": {
+                "url": "https://ota.campchef.site/stm/CDLX_V1.1.1.bin",
+                "md5sum": "eccd247b1dca3b70e361d564c5ce586d",
+                "published": "2020-07-13"
+            },
+            "0.2.1A": {
+                "url": "https://ota.campchef.site/stm/CDLX_V0_2_1A.bin",
+                "md5sum": "c24332ecca47fd5a61c4211bf02270d4",
+                "published": "2021-05-24"
+            },
+            "0.3.2A": {
+                "url": "https://ota.campchef.site/stm/CDLX_V0_3_2A.bin",
+                "md5sum": "7718dbba4b3db2a98192d6f9ecb83466",
+                "published": "2021-09-16"
+            },
+            "0.3.2B": {
+                "url": "https://ota.campchef.site/stm/CDLX_V0_3_2B.bin",
+                "md5sum": "38ef78e52abb3361e5b710206d6a22ae",
+                "published": "2021-09-16"
+            }
+        }
+    },
+    "dmg": {
+        "latest": null,
+        "versions": null
+    },
+    "cmg": {
+        "latest": null,
+        "versions": null
+    },
+    "dppg": {
+        "latest": null,
+        "prerelease": null
+    },
+    "cppg": {
+        "latest": "1.1.1",
+        "prerelease": "1.1.3",
+        "intermediate": "1.0.5",
+        "alternate": [
+            "1.1.3",
+            "1.1.2",
+            "1.1.1",
+            "1.0.5"
+        ],
+        "versions": {
+            "1.1.3": {
+                "url": "https://ota.campchef.site/stm/CPPG_V1_1_2.bin",
+                "md5sum": "19f661fde1ef1baa1ba47906b5cfa260",
+                "published": "2021-05-24"
+            },
+            "1.1.2": {
+                "url": "https://ota.campchef.site/stm/CPPG_V1_1_2.bin",
+                "md5sum": "5de24a2fcff8941a2192f694b366e0c9",
+                "published": "2021-04-13"
+            },
+            "1.1.1": {
+                "url": "https://ota.campchef.site/stm/CPPG_V1.1.1.bin",
+                "md5sum": "d10bf7bf3abb158b98ceda343a873f5b",
+                "published": "2020-07-13"
+            },
+            "1.0.5": {
+                "url": "https://ota.campchef.site/stm/CPPG_V1.0.5.bin",
+                "md5sum": "806efaafc7c0854169df455b03be9e66",
+                "published": "2019-06-12"
+            }
+        }
+    },
+    "dxxl": {
+        "latest": null,
+        "versions": null
+    },
+    "cxxl": {
+        "latest": null,
+        "versions": null
+    },
+    "f0yw": {
+        "latest": "1.1.1",
+        "prerelease": "1.1.1",
+        "intermediate": null,
+        "alternate": [
+            "1.1.1",
+            "1.0.7"
+        ],
+        "versions": {
+            "1.1.1": {
+                "url": "https://ota.campchef.site/stm/F0YW_V1.1.1.bin",
+                "md5sum": "91e2bf1310c433f502306d00057e2fbd",
+                "published": "2020-07-13"
+            },
+            "1.0.8": {
+                "url": "https://ota.campchef.site/stm/F0YW_V1.0.8.bin",
+                "md5sum": "77d7e0c6fbb051af08bfa9353301394c",
+                "published": "2020-03-17"
+            },
+            "1.0.7": {
+                "url": "https://ota.campchef.site/stm/F0YW_V1.0.7.bin",
+                "md5sum": "04c7a657411d8baee7bd1c111c8e90b1",
+                "published": "2020-02-18"
+            },
+            "1.0.6": {
+                "url": "https://ota.campchef.site/stm/F0YW_V1.0.6.bin",
+                "md5sum": "c04018c890441175ee3b59e00de318b2",
+                "published": "2019-12-31"
+            },
+            "1.0.5": {
+                "url": "https://ota.campchef.site/stm/F0YW_V1.0.5.bin",
+                "md5sum": "2c3323b9d247b4efbbc667d45e86d762",
+                "published": "2019-12-31"
+            }
+        }
+    },
+    "f1yw": {
+        "latest": "1.1.1",
+        "prerelease": "1.1.1",
+        "intermediate": null,
+        "alternate": [
+            "1.1.1",
+            "1.2.0A",
+            "1.2.0B",
+            "1.2.5A"
+        ],
+        "versions": {
+            "1.2.5A": {
+                "url": "https://ota.campchef.site/stm/F1YW_V1_2_5A.bin",
+                "md5sum": "823cbf5e51bd303c04ef32c3bf036982",
+                "published": "2021-04-07"
+            },
+            "1.2.0B": {
+                "url": "https://ota.campchef.site/stm/F1YW_V1_2_0B.bin",
+                "md5sum": "05890ffd09abe8a7f75a780bc530cab2",
+                "published": "2021-1-11"
+            },
+            "1.2.0A": {
+                "url": "https://ota.campchef.site/stm/F1YW_V1_2_0A.bin",
+                "md5sum": "d66ea535ed3dbb7ded391259397818b4",
+                "published": "2021-1-11"
+            },
+            "1.1.1": {
+                "url": "https://ota.campchef.site/stm/F1YW_V1.1.1.bin",
+                "md5sum": "fc0734ff55164762c3e24359b72d7ea1",
+                "published": "2020-07-13"
+            },
+            "1.0.8": {
+                "url": "https://ota.campchef.site/stm/F1YW_V1.0.8.bin",
+                "md5sum": "77d4b0efedf8fcde4d6d5eaf8b680d38",
+                "published": "2020-03-17"
+            },
+            "1.0.7": {
+                "url": "https://ota.campchef.site/stm/F1YW_V1.0.7.bin",
+                "md5sum": "4de4521720bfbad0181a4715eef288ab",
+                "published": "2020-02-18"
+            },
+            "1.0.6": {
+                "url": "https://ota.campchef.site/stm/F1YW_V1.0.6.bin",
+                "md5sum": "be5a346fd3347b0c0b8847c5210b2b01",
+                "published": "2019-12-31"
+            },
+            "1.0.5": {
+                "url": "https://ota.campchef.site/stm/F1YW_V1.0.5.bin",
+                "md5sum": "3f2ec26beb9e320fd25fcd37bd3cd8e4",
+                "published": "2019-12-31"
+            }
+        }
+    },
+    "f3yw": {
+        "latest": "1.1.1",
+        "prerelease": "1.1.1",
+        "intermediate": null,
+        "alternate": [
+            "1.1.1",
+            "1.0.7"
+        ],
+        "versions": {
+            "1.1.1": {
+                "url": "https://ota.campchef.site/stm/F3YW_V1.1.1.bin",
+                "md5sum": "0e80cd587482b1a5219e287624cf4569",
+                "published": "2020-07-13"
+            },
+            "1.0.8": {
+                "url": "https://ota.campchef.site/stm/F3YW_V1.0.8.bin",
+                "md5sum": "3a5edd64f1ae67fddac966a6e8778e2e",
+                "published": "2020-03-17"
+            },
+            "1.0.7": {
+                "url": "https://ota.campchef.site/stm/F3YW_V1.0.7.bin",
+                "md5sum": "38e22c907a844576c59c1ef9263c8d7f",
+                "published": "2020-02-18"
+            },
+            "1.0.6": {
+                "url": "https://ota.campchef.site/stm/F3YW_V1.0.6.bin",
+                "md5sum": "3452a58443f9f89f04d5a1b596c4a30b",
+                "published": "2019-12-31"
+            },
+            "1.0.5": {
+                "url": "https://ota.campchef.site/stm/F3YW_V1.0.5.bin",
+                "md5sum": "1a9ff0cf01d13df7b67350666390ef3e",
+                "published": "2019-12-31"
+            }
+        }
+    },
+    "g1yw": {
+        "latest": "1.0.4",
+        "prerelease": "1.0.4",
+        "intermediate": null,
+        "alternate": [
+            "1.0.2C",
+            "1.0.2D",
+            "1.0.4"
+        ],
+        "versions": {
+            "1.0.2C": {
+                "url": "https://ota.campchef.site/stm/G1YW_V1_0_2C.bin",
+                "md5sum": "c05b929368f0c8036d7a3d51e2a30692",
+                "published": "2020-08-18"
+            },
+            "1.0.2D": {
+                "url": "https://ota.campchef.site/stm/G1YW_V1_0_2D.bin",
+                "md5sum": "32c3de1c2ea1b0a68bb268a8364648d5",
+                "published": "2020-08-18"
+            },
+            "1.0.4": {
+                "url": "https://ota.campchef.site/stm/G1YW_V1_0_4.bin",
+                "md5sum": "030c6cfa752830203e228c3b18a87d4c",
+                "published": "2020-09-08"
+            }
+        }
+    },
+    "4pwi": {
+        "latest": "1.3.7",
+        "prerelease": "1.3.7",
+        "intermediate": null,
+        "alternate": [
+            "1.3.7",
+            "1.3.7A"
+        ],
+        "versions": {
+            "1.3.7": {
+                "url": "https://ota.campchef.site/stm/4PWI_V1_3_7.bin",
+                "md5sum": "ccb5024bad9835c781c32f859a691ff9",
+                "published": "2021-09-08"
+            },
+            "1.3.7A": {
+                "url": "https://ota.campchef.site/stm/4PWI_V1_3_7A.bin",
+                "md5sum": "7b587fb0449a1ffdd5f9587e64bededb",
+                "published": "2021-09-08"
+            }
+        }
+    },
+    "dapx": {
+        "latest": "0.3.1",
+        "prerelease": "0.3.1",
+        "intermediate": null,
+        "alternate": [
+            "0.3.1",
+            "0.3.2A",
+            "0.3.2B"
+        ],
+        "versions": {
+            "0.3.1": {
+                "url": "https://ota.campchef.site/stm/DAPX_V0_3_1.bin",
+                "md5sum": "ebaad71f38fa0babc609c74d0125b20e",
+                "published": "2021-9-8"
+            },
+            "0.3.2A": {
+                "url": "https://ota.campchef.site/stm/DAPX_V0_3_2A.bin",
+                "md5sum": "496f2fb5f434bad05ec80cde1fdd4655",
+                "published": "2021-9-16"
+            },
+            "0.3.2B": {
+                "url": "https://ota.campchef.site/stm/DAPX_V0_3_2B.bin",
+                "md5sum": "d469be8e4b5182a16fb6d0b79f3ba89d",
+                "published": "2021-9-16"
+            }
+        }
+    },
+    "hy24": {
+        "latest": "2.0.0G",
+        "prerelease": "2.0.0G",
+        "intermediate": null,
+        "alternate": [
+            "1.0.6L",
+            "1.0.6M",
+            "1.0.6N",
+            "1.0.6P",
+            "1.0.6Q",
+            "1.0.6R",
+            "2.0.0A",
+            "2.0.0B",
+            "2.0.0C",
+            "2.0.0D",
+            "2.0.0E"
+        ],
+        "versions": {
+            "1.0.6L": {
+                "url": "https://ota.campchef.site/stm/HY24_V1_0_6L.bin",
+                "md5sum": "0d841201aa0fc3c907ddba394a197f80",
+                "published": "2021-1-12"
+            },
+            "1.0.6M": {
+                "url": "https://ota.campchef.site/stm/HY24_V1_0_6M.bin",
+                "md5sum": "679127659f8a35f8c42c9fa3b4088349",
+                "published": "2021-1-12"
+            },
+            "1.0.6N": {
+                "url": "https://ota.campchef.site/stm/HY24_V1_0_6N.bin",
+                "md5sum": "b576b68528a25c86750b7b9d48154c4e",
+                "published": "2021-1-12"
+            },
+            "1.0.6P": {
+                "url": "https://ota.campchef.site/stm/HY24_V1_0_6P.bin",
+                "md5sum": "48300cea111b0e7181ff7ba02a46432a",
+                "published": "2021-1-20"
+            },
+            "1.0.6Q": {
+                "url": "https://ota.campchef.site/stm/HY24_V1_0_6Q.bin",
+                "md5sum": "880fba486540b15dc5d12787a7fdf208",
+                "published": "2021-1-20"
+            },
+            "1.0.6R": {
+                "url": "https://ota.campchef.site/stm/HY24_V1_0_6R.bin",
+                "md5sum": "9754a6433477690725eca9f3b03a0980",
+                "published": "2021-1-20"
+            },
+            "2.0.0A": {
+                "url": "https://ota.campchef.site/stm/HY24_V2_0_0A.bin",
+                "md5sum": "7f9e1fd91206997df06fd5ac7476ba19",
+                "published": "2021-1-7"
+            },
+            "2.0.0B": {
+                "url": "https://ota.campchef.site/stm/HY24_V2_0_0B.bin",
+                "md5sum": "b99ef67df6ba92215e2474d75e284478",
+                "published": "2021-1-7"
+            },
+            "2.0.0C": {
+                "url": "https://ota.campchef.site/stm/HY24_V2_0_0C.bin",
+                "md5sum": "43668a46d82d3f5f050e55152bf2f3af",
+                "published": "2021-1-20"
+            },
+            "2.0.0D": {
+                "url": "https://ota.campchef.site/stm/HY24_V2_0_0D.bin",
+                "md5sum": "071ecfe1f2f8f48143f77c2a8e0085e3",
+                "published": "2021-1-20"
+            },
+            "2.0.0E": {
+                "url": "https://ota.campchef.site/stm/HY24_V2_0_0E.bin",
+                "md5sum": "e88793eedcf85c790b003615c47addbe",
+                "published": "2021-1-20"
+            },
+            "2.0.0G": {
+                "url": "https://ota.campchef.site/stm/HY24_V2_0_0G.bin",
+                "md5sum": "8d98ca26c3e793e2a8e17252663b722c",
+                "published": "2021-5-05"
+            }
+        }
+    }
+}

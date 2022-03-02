@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+
+<% if (sessionInfo.refresh) { %>
+    <script>
+        setTimeout(function(){
+           window.location.reload(1);
+        }, 30000);
+    </script>
+<% } %>    
+</head>
+
+<body class="container pt-0 mt-0">
+
+
+    <% 
+    const cc_employee_admin = 2;
+    const cc_employee_cs = 3;
+    const cc_employee_buis = 4;
+    const cc_employee = 5;
+    const cc_customer = 99;
+    var accessLevel = cc_customer; 
+    var accessLable = "";   
+    if (userToken != null) { 
+      if (userToken['cognito:groups'] != undefined) {
+        userToken['cognito:groups'].forEach( group => {
+            if (group === 'cc_employee'){
+                if(cc_employee < accessLevel){
+                    accessLevel = cc_employee;
+                    accessLable = "Employee";
+                }
+            } 
+            if (group === 'cc_employee_buis' ){
+                if (cc_employee_buis < accessLevel){
+                    accessLevel = cc_employee_buis;
+                    accessLable = "Business";    
+                }
+            } 
+            if (group === 'cc_employee_cs'){
+                if (cc_employee_cs < accessLevel){
+                    accessLevel = cc_employee_cs;
+                    accessLable = "Customer Service";
+                }
+            }
+            if (group === 'cc_employee_admin'){
+                if (cc_employee_admin < accessLevel){
+                    accessLevel = cc_employee_admin;
+                    accessLable = "Admin";
+                }
+            }
+          });
+      } 
+    } 
+
+
+    var deviceTypeName = '';
+    switch (sessionInfo.model) { 
+        case '4PWI':
+            deviceTypeName = '4-Probe WiFi Thermometer';
+            break;
+        case 'CPPG':
+            deviceTypeName = 'Woodwind 20';
+            break;
+        case 'CDLX':
+            deviceTypeName = 'Woodwind';
+            break;
+        case 'F0YW':
+            deviceTypeName = 'Portable';
+            break;
+        case 'F1YW':
+            deviceTypeName = 'Gen 2 - DLX/SG';
+            break;
+        case 'F3YW':
+            deviceTypeName = 'Gen2 - XXL';
+        case 'G0YW':
+            
+            break;
+        case 'G1YW':
+            
+            break;
+        case 'CAPX':
+        case 'DAPX':
+            deviceTypeName = 'Apex';
+            break;    
+        
+        default:
+            deviceTypeName = sessionInfo.model;
+            break;
+    }
+    %> 
+
+    <main>
+        <%- include('../partials/header', {email:email, userUUID:userUUID, userToken:userToken}); %>
+
+    <div class="container-fluid">
+        <div class="table-responsive">
+            <% if(sessionInfo){ %>
+                <table class="table mx-auto w-auto">
+                    <thead >
+                        <tr>
+                            <th>Session ID</th>
+                            <th>Mac</th>
+                            <th>Model</th>
+                            <th>Probes</th>
+                            <th>Local Date/Time</th>
+                            <th>Recording Name (Default is UTC Date/Time)</th>
+                            <th>Nickname</th>
+                            <th>Description</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <small class="text-muted"><%= sessionInfo.session_uuid %></small>
+                            </td>
+                            <td>
+                                <%= sessionInfo.mac %>
+                            </td>
+                            <td>
+                                <%= deviceTypeName %>
+                            </td>
+                            <td>
+                                <%= sessionInfo.num_probes %>
+                            </td>
+                            <td>
+                                <%= sessionInfo.localStartDateTime %>
+                            </td>
+                            <td>
+                                <small class="text-muted"><%= sessionInfo.name %></small>
+                            </td>
+                            <td>
+                                <%= sessionInfo.grill %>
+                            </td>
+                            <td>
+                                <%= sessionInfo.description %>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            <% } %>
+
+                <hr>
+        </div>
+
+
+        <% if( sessionData.grillTemps != undefined ) { %> 
+
+            <% if(sessionData.p1 != undefined) { 
+                var probe1_Name = 'Probe 1'; 
+                if(sessionInfo.p1_name != '' ){
+                    probe1_Name = sessionInfo.p1_name;
+                } 
+            }   %>
+            <% if(sessionData.p2 != undefined) { 
+                    var probe2_Name = 'Probe 2'; 
+                    if(sessionInfo.p2_name != '' ){
+                        probe2_Name = sessionInfo.p2_name; 
+                    } 
+                }   %>    
+            <% if(sessionData.p3 != undefined) { 
+                var probe3_Name = 'Probe 3'; 
+                if(sessionInfo.p3_name != '' ){
+                    probe3_Name = sessionInfo.p3_name; 
+                } 
+            }   %>
+            <% if(sessionData.p4 != undefined) { 
+                    var probe4_Name = 'Probe 4'; 
+                    if(sessionInfo.p4_name != '' ){
+                        probe4_Name = sessionInfo.p4_name; 
+                    } 
+                }   %>   
+
+
+        <div class="container-fluid">
+            
+                        <!-- Dougs graph -->
+                        
+                              
+                               <div class="row">
+                                <div class="col bg-light">
+                                    <h4 class="text-center text-muted">Grill Graph</h4>
+                                    <canvas id="dougChart"> </canvas>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="resetDougChartZoom()">Reset Zoom</button>
+                                    <script>
+    
+                                        function resetDougChartZoom() {
+                                            window.dougChart.resetZoom();
+                                        }
+                                                                  
+                                        let dougData = {
+                                            labels: <%- JSON.stringify(sessionData.milliseconds) %>,
+                                            datasets: [
+
+                                                {
+                                                    label: 'Grill Temp',
+                                                    borderColor: 'rgba(185, 0, 0, 0.8)',
+                                                    fill: false,
+                                                    tension: 0.1,
+                                                    data: <%- JSON.stringify(sessionData.grillTemps) %>,
+                                                },
+
+                                                <%  if(sessionData.setTemps.length > 0) { %>
+                                                {
+                                                    label: 'Set Temp',
+                                                    fill: false,
+                                                    tension: 0.1,
+                                                    borderColor: 'rgba(245, 105, 210, 0.6)',
+                                                    data: <%- JSON.stringify(sessionData.setTemps) %>,
+                                                },
+                                                <% } 
+                                                    if (sessionData.fan.length > 0) { %> 
+                                                {
+                                                    label: 'Fan Speed',
+                                                    fill: false,
+                                                    tension: 0.1,
+                                                    borderColor:  'rgba(0, 105, 40, 1.0)',
+                                                    data: <%- JSON.stringify(sessionData.fan) %>,
+
+                                                },
+                                                <% } %>
+                                                {
+                                                    //label: "P",
+                                                    label: <%- JSON.stringify(probe1_Name) %>,
+                                                    borderColor: 'rgba(0, 105, 210, 0.8)',
+                                                    fill: false,
+                                                    data: <%- JSON.stringify(sessionData.p1) %>,
+                                                },
+                                                {
+                                                    //label:  "I",
+                                                    label:  <%- JSON.stringify(probe2_Name) %>,
+                                                    fill: false,
+                                                    borderColor: 'rgba(0, 145, 0, 0.8)',
+                                                    data: <%- JSON.stringify(sessionData.p2) %>,
+                                                },
+
+                                                <% if(sessionData.p3) { %>
+                                                {
+                                                    // label: "D",
+                                                    label: <%- JSON.stringify(probe3_Name) %>,
+                                                    fill: false,
+                                                    borderColor: 'rgba(255, 160, 0, 0.8)',
+                                                    data: <%- JSON.stringify(sessionData.p3) %>,
+                                                }
+                                                <% } if (sessionData.p4) { %>
+                                                ,{
+                                                        // label: "Auger On",
+                                                        label: <%- JSON.stringify(probe4_Name) %>,
+                                                        fill: false,
+                                                        borderColor: 'rgba(0, 0, 0, 0.5)',
+                                                        data: <%- JSON.stringify(sessionData.p4) %>
+                                                }
+                                                <% } %>
+                                            ]
+                                        };
+                            
+                                        const doug_config = {
+                                            type: 'line',
+                                            data: dougData,
+                                            options: {
+                                                zone: "America/Denver",
+                                                scales: {
+                                                 xAxes: [{
+                                                        type: 'time',
+                                                        distribution: 'series'
+                                                    }]
+                                                },
+                                                limits:{
+                                                    minRange: 300000
+                                                },
+                                                plugins: {
+                                                    zoom: {
+                                                        pan: {
+                                                         enabled: true,
+                                                           mode: 'xy'
+                                                        },
+                                                        zoom: {
+                                                            enabled: true,
+                                                            mode: 'xy'
+                                                        }
+                                                    }
+                                                },
+                                                options: {
+                                                    elements:{
+                                                        line:{
+                                                            borderWidth: 1
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        };
+                            
+                                        var dougChart = new Chart(
+                                            document.getElementById('dougChart').getContext('2d'),
+                                            doug_config
+                                        );
+                                    </script>
+                                </div>
+                            </div>
+                       
+                      <hr>      
+
+
+
+        <!-- Grill  -->
+        <div class="row">
+            <div class="col bg-light">
+                <h4 class="text-center text-muted">Grill Temp/Settings</h4>
+                    <canvas id="grillChart"></canvas>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="resetgrillChartZoom()">Reset Zoom</button>
+                    <script>
+                        function resetgrillChartZoom() {
+                            window.grillChart.resetZoom();
+                        }
+
+                        const grillData = {
+                            labels: <%- JSON.stringify(sessionData.milliseconds) %>,
+                            datasets: [
+                                {
+                                    label: 'Grill Temp',
+                                    borderColor: 'rgba(185, 0, 0, 0.8)',
+                                    fill: false,
+                                    tension: 0.1,
+                                    data: <%- JSON.stringify(sessionData.grillTemps) %>,
+                                },
+                                {
+                                    label: 'Set Temp',
+                                    fill: false,
+                                    tension: 0.1,
+                                    borderColor: 'rgba(0, 105, 210, 0.6)',
+                                    data: <%- JSON.stringify(sessionData.setTemps) %>,
+                                },
+                                {
+                                    label: 'Smoke',
+                                    fill: false,
+                                    tension: 0.1,
+                                    borderColor: 'rgba(50,50,50, 0.6)',
+                                    data: <%- JSON.stringify(sessionData.smoke) %>,
+                                }]
+                        };
+
+                        const grillConfig = {
+                                type: 'line',
+                                data: grillData,
+                                options: {
+                                    zone: "America/Denver",
+                                    scales: {
+                                        xAxes: [{
+                                            type: 'time',
+                                            distribution: 'series'
+                                        }]
+                                    },
+                                    limits:{
+                                        minRange: 300000
+                                    },
+                                    plugins: {
+                                        zoom: {
+                                            pan: {
+                                                enabled: true,
+                                                mode: 'xy'
+                                            },
+                                            zoom: {
+                                                enabled: true,
+                                                mode: 'xy'
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+
+                        var grillChart = new Chart(
+                            document.getElementById('grillChart').getContext('2d'),
+                            grillConfig
+                        );
+
+                    </script>
+                    </div>
+                   </div> 
+                    <% } %>
+                   <hr>
+                    <!-- Probe 1 -->
+                    <% if(sessionData.p1 != undefined) { 
+                        var probe1_Name = 'Probe 1'; 
+                        if(sessionInfo.p1_name != '' ){
+                            probe1_Name = sessionInfo.p1_name; 
+                        } %>
+                    <div class="row">
+                        <div class="col bg-light">
+                            <h4 class="text-center text-muted">Temperature Probe 1</h4>
+                            <canvas id="p1Chart"> </canvas>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="resetp1ChartZoom()">Reset Zoom</button>
+                            <script>
+                                function resetp1ChartZoom() {
+                                    window.p1Chart.resetZoom();
+                                }
+
+                                let p1_data = {
+                                    labels: <%- JSON.stringify(sessionData.milliseconds) %>,
+                                    datasets: [
+                                        {
+                                                label: <%- JSON.stringify(probe1_Name) %>,
+                                                borderColor: 'rgba(0, 105, 210, 0.8)',
+                                                fill: false,
+                                                data: <%- JSON.stringify(sessionData.p1) %>,
+                                        }
+                                    <% if (sessionData.g1 != undefined) { %>
+                                        ,{
+                                                label: 'Goal Temp',
+                                                fill: false,
+                                                borderColor: 'rgba(50,50,50, 0.6)',
+                                                data: <%- JSON.stringify(sessionData.g1) %>,
+                                        }   
+                                    <% } %>
+                                    ]
+                                };
+
+                                const p1_config = {
+                                    type: 'line',
+                                    data: p1_data,
+                                    options: {
+                                    zone: "America/Denver",
+                                    scales: {
+                                        xAxes: [{
+                                            type: 'time',
+                                            distribution: 'series'
+                                        }]
+                                    },
+                                    limits:{
+                                        minRange: 300000
+                                    },
+                                    plugins: {
+                                        zoom: {
+                                            pan: {
+                                                enabled: true,
+                                                mode: 'xy'
+                                            },
+                                            zoom: {
+                                                enabled: true,
+                                                mode: 'xy'
+                                            }
+                                        }
+                                    }
+                                }
+                                };
+
+                                var p1Chart = new Chart(
+                                    document.getElementById('p1Chart').getContext('2d'),
+                                    p1_config
+                                );
+                            </script>
+                        </div>
+                    </div>
+                        <% } %>
+                <hr>    
+                <!-- Probe 2 -->
+                <% if(sessionData.p2 != undefined) { 
+                    var probe2_Name = 'Probe 2'; 
+                    if(sessionInfo.p2_name != '' ){
+                        probe2_Name = sessionInfo.p2_name; 
+                    } %>
+                <div class="row">
+                    <div class="col bg-light">
+                        <h4 class="text-center text-muted">Temperature Probe 2</h4>
+                        <canvas id="p2Chart"> </canvas>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="resetp2ChartZoom()">Reset Zoom</button>
+                        <script>
+                            function resetp2ChartZoom() {
+                                    window.p2Chart.resetZoom();
+                            }
+
+                            let p2_data = {
+                                labels: <%- JSON.stringify(sessionData.milliseconds) %>,
+                                datasets: [
+                                {
+                                    label: <%- JSON.stringify(probe2_Name) %>,
+                                    fill: false,
+                                    borderColor: 'rgba(0, 145, 0, 0.8)',
+                                    data: <%- JSON.stringify(sessionData.p2) %>,
+                                }
+                            <% if (sessionData.g2 != undefined) { %>
+                                 ,{
+                                    label: 'Goal Temp',
+                                    fill: false,
+                                    borderColor: 'rgba(50, 50, 50, 0.6)',
+                                    data: <%- JSON.stringify(sessionData.g2) %>,
+                                }
+                                <% } %>
+                                ]
+                            };
+                
+                            const p2_config = {
+                                type: 'line',
+                                data: p2_data,
+                                options: {
+                                    zone: "America/Denver",
+                                    scales: {
+                                        xAxes: [{
+                                            type: 'time',
+                                            distribution: 'series'
+                                        }]
+                                    },
+                                    limits:{
+                                        minRange: 300000
+                                    },
+                                    plugins: {
+                                        zoom: {
+                                            pan: {
+                                                enabled: true,
+                                                mode: 'xy'
+                                            },
+                                            zoom: {
+                                                enabled: true,
+                                                mode: 'xy'
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+                
+                            var p2Chart = new Chart(
+                                document.getElementById('p2Chart').getContext('2d'),
+                                p2_config
+                            );
+                        </script>
+                    </div>
+                </div>
+                    <% } %>
+                    <hr>
+                    <!-- Probe 3 -->
+                    <% if(sessionData.p3 != undefined) { 
+                        var probe3_Name = 'Probe 3'; 
+                        if(sessionInfo.p3_name != '' ){
+                            probe3_Name = sessionInfo.p3_name; 
+                        } %>
+                       <div class="row">
+                        <div class="col bg-light">
+                            <h4 class="text-center text-muted">Temperature Probe 3</h4>
+                            <canvas id="p3Chart"> </canvas>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="resetp3ChartZoom()">Reset Zoom</button>
+                            <script>
+                                function resetp3ChartZoom() {
+                                    window.p3Chart.resetZoom();
+                                }
+
+                                let p3_data = {
+                                    labels: <%- JSON.stringify(sessionData.milliseconds) %>,
+                                    datasets: [
+                                        {
+                                            label: <%- JSON.stringify(probe3_Name) %>,
+                                            fill: false,
+                                            borderColor: 'rgba(255, 160, 0, 0.8)',
+                                            data: <%- JSON.stringify(sessionData.p3) %>,
+                                        }
+                                    <% if (sessionData.g3 != undefined) { %>
+                                        ,{
+                                            label: 'Goal Temp',
+                                            fill: false,
+                                            borderColor: 'rgba(50, 50, 50, 0.6)',
+                                            data: <%- JSON.stringify(sessionData.g3) %>,
+                                        }
+                                    <% } %>
+                                    ]
+                                };
+                    
+                                const p3_config = {
+                                    type: 'line',
+                                    data: p3_data,
+                                    options: {
+                                    zone: "America/Denver",
+                                    scales: {
+                                        xAxes: [{
+                                            type: 'time',
+                                            distribution: 'series'
+                                        }]
+                                    },
+                                    limits:{
+                                        minRange: 300000
+                                    },
+                                    plugins: {
+                                        zoom: {
+                                            pan: {
+                                                enabled: true,
+                                                mode: 'xy'
+                                            },
+                                            zoom: {
+                                                enabled: true,
+                                                mode: 'xy'
+                                            }
+                                        }
+                                    }
+                                }
+                                };
+                    
+                                var p3Chart = new Chart(
+                                    document.getElementById('p3Chart').getContext('2d'),
+                                    p3_config
+                                );
+                            </script>
+                        </div>
+                    </div>
+                        <% } %>
+                        <hr>
+                        <!-- Probe 4 -->
+                        <% if(sessionData.p4 != undefined) { 
+                            var probe4_Name = 'Probe 4'; 
+                            if(sessionInfo.p4_name != '' ){
+                                probe4_Name = sessionInfo.p4_name; 
+                            } %>
+                           <div class="row">
+                            <div class="col bg-light">
+                                <h4 class="text-center text-muted">Temperature Probe 4</h4>
+                                <canvas id="p4Chart"> </canvas>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="resetp4ChartZoom()">Reset Zoom</button>
+                                <script>
+
+                                    function resetp4ChartZoom() {
+                                        window.p4Chart.resetZoom();
+                                    }
+
+                                    let p4_data = {
+                                        labels: <%- JSON.stringify(sessionData.milliseconds) %>,
+                                        datasets: [
+                                        {
+                                                label: <%- JSON.stringify(probe4_Name) %>,
+                                                fill: false,
+                                                borderColor: 'rgba(185, 0, 0, 0.8)',
+                                                data: <%- JSON.stringify(sessionData.p4) %>
+                                        }
+                                        <% if (sessionData.g4 != undefined) { %>
+                                        ,{
+                                            label: 'Goal Temp',
+                                            fill: false,
+                                            borderColor: 'rgba(50, 50, 50, 0.6)',
+                                            data: <%- JSON.stringify(sessionData.g4) %>
+                                        }
+                                        <% } %>
+                                        ]
+                                    };
+                        
+                                    const p4_config = {
+                                        type: 'line',
+                                        data: p4_data,
+                                        options: {
+                                    zone: "America/Denver",
+                                    scales: {
+                                        xAxes: [{
+                                            type: 'time',
+                                            distribution: 'series'
+                                        }]
+                                    },
+                                    limits:{
+                                        minRange: 300000
+                                    },
+                                    plugins: {
+                                        zoom: {
+                                            pan: {
+                                                enabled: true,
+                                                mode: 'xy'
+                                            },
+                                            zoom: {
+                                                enabled: true,
+                                                mode: 'xy'
+                                            }
+                                        }
+                                    }
+                                }
+                                    };
+                        
+                                    var p4Chart = new Chart(
+                                        document.getElementById('p4Chart').getContext('2d'),
+                                        p4_config
+                                    );
+                                </script>
+                            </div>
+                        </div>
+    <% } %>
+
+                            
+        </div>
+
+    </main>
+
+    <footer>
+        <%- include('../partials/footer'); %>
+    </footer>
+
+</body>
+
+</html>

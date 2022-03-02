@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container pt-0 mt-0">
+
+<main>
+
+    <%- include('../partials/header', {email:email, userUUID:userUUID, userToken:userToken }); %>
+
+    <div class="container-fluid">
+
+        <br>
+        <div class="d-flex justify-content-center">
+            <h6> Dev Firmware Only </h6>
+        </div>    
+           
+        <div class="d-flex justify-content-center">
+            <div class="form-group border bg-light">
+                <form id="devFirmwareUpload" action="/v3/firmware" enctype="multipart/form-data" method="post">
+                    <div class="custom-file mb-3">
+                        <input type="file" class="custom-file-input" id="customFile" name="filename" accept=".bin">
+                        <label class="custom-file-label " for="customFile">Choose Dev Firmware file</label>
+                    </div>
+                    <div class="mt-1">
+                        <button type="submit" class="btn btn-secondary" id="fileSubmit">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div>
+            <% if(uploadStatus) { %>
+            <p class="text-muted" id="uploadStatus"> <%= uploadStatus.status %> </p>
+            <% } 
+                else { %>
+                    <p class="text-muted" id="uploadStatus"> </p>
+            <% } %>
+        </div>
+
+        <script>
+            // Add the following code if you want the name of the file appear on select
+            $(".custom-file-input").on("change", function() {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
+
+
+            $('#devFirmwareUpload').submit( function (e) {
+                e.preventDefault();
+                var uploadStatus =  document.getElementById('uploadStatus');
+                uploadStatus.innerHTML = '';
+               
+                var formData = new FormData($(this)[0]);
+
+                $.ajax({
+                    type: 'POST',
+                    url: "/v3/firmware",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    success: (data) => {
+                       alert(data.status);
+                       reloadWin();
+                    }
+                });
+            });
+
+            function reloadWin() {
+                setTimeout(function () {
+                    window.location.reload(1);
+                }, 500);
+            };
+        </script>
+
+        <div class="container-fluid border ">
+            <div class="row">
+           
+            <% if (firmwareList) {
+                    firmwareListKeys = Object.keys(firmwareList);
+                    firmwareListKeys.forEach( (key) => {  
+                
+                    if (firmwareList[key].length) { %>
+                        <div class="col">
+                        <ul class="nav flex-column">
+                        <li><small class="text-muted"><%= key %></small></li>
+                <%            firmwareList[key].forEach( (version) => {   %>
+                            <li><%= version %></li> 
+                <%          }); %>
+                        </ul>
+                        </div>
+                <%  }   %>
+            <%     });
+                }    %>
+
+            
+            </div>
+        </div>
+    </div>    
+
+    </main>
+    <footer>
+        <%- include('../partials/footer'); %>
+    </footer>
+</body>     
+</html>

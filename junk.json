@@ -1,0 +1,62 @@
+<script>
+$(document).ready(function(){
+  $("button").click(function(){
+    $.get("/v3/view_refresh?mac=<%= device.mac %>", function(data, status){
+
+        let dssd = data.shadow.state.desired;
+        let modeStr = "";
+        let icon = '';
+        let pillType = '';
+        let setTemp = dssd.set_temperature;
+        let setSmoke = dssd.control.smoke_multiplier;
+
+        switch(dssd.mode){
+                    case 0:
+                        modeStr = "Startup";
+                        icon = "fas fa-fire text-info";
+                        break;
+                    case 1:
+                        modeStr = "Standby";
+                        icon = "fas fa-power-off text-success";
+                        setTemp = '---';
+                        setSmoke = '---';
+                        break;
+                    case 2:
+                        modeStr = "Run";
+                        pillType = 'badge-success';
+                        icon = "fas fa-fire text-danger";
+                        break;
+                    case 3:
+                        modeStr = "Feed";
+                        icon = "fas fa-circle-o-notch fa-spin";
+                        pillType = 'badge-warning';
+                        setTemp = '---';
+                        setSmoke = '---';
+                        break;
+                    case 4: 
+                        modeStr = "Shutdown";
+                        icon = "fas fa-fire text-info";
+                        pillType = 'badge-warning';
+                        setTemp = '---';
+                        setSmoke = '---';
+                        break;
+                    case 5:
+                        modeStr = "Reset";
+                        pillType = 'badge-info';
+                        setTemp = '---';
+                        setSmoke = '---';
+                        break;
+                    case 6: 
+                        modeStr = "Fan";
+                        pillType = 'badge-success';
+                        icon = 'fa-radiation fa-pulse';
+                        setTemp = '---';
+                        setSmoke = '---';
+                        break;    
+            }
+
+      
+    });
+  });
+});
+</script>

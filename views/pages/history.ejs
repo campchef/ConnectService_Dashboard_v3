@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container pt-0 mt-0">
+
+    <%   
+    const cc_employee_admin = 2;
+    const cc_employee_cs = 3;
+    const cc_employee_buis = 4;
+    const cc_employee = 5;
+    const cc_customer = 99;
+    var accessLevel = cc_customer; 
+    var accessLable = "";   
+    if (userToken != null) { 
+      if (userToken['cognito:groups'] != undefined) {
+        userToken['cognito:groups'].forEach( group => {
+            if (group === 'cc_employee'){
+                if(cc_employee < accessLevel){
+                    accessLevel = cc_employee;
+                    accessLable = "Employee";
+                }
+            } 
+            if (group === 'cc_employee_buis' ){
+                if (cc_employee_buis < accessLevel){
+                    accessLevel = cc_employee_buis;
+                    accessLable = "Business";    
+                }
+            } 
+            if (group === 'cc_employee_cs'){
+                if (cc_employee_cs < accessLevel){
+                    accessLevel = cc_employee_cs;
+                    accessLable = "Customer Service";
+                }
+            }
+            if (group === 'cc_employee_admin'){
+                if (cc_employee_admin < accessLevel){
+                    accessLevel = cc_employee_admin;
+                    accessLable = "Admin";
+                }
+            }
+          });
+      } 
+    } %>
+
+    <main>
+
+        <%- include('../partials/header', {email:email, userUUID:userUUID, userToken:userToken}); %>
+
+
+    <div class="container-fluid">  
+        <div class="table-responsive">
+                <table class="table mx-auto w-auto">    
+                    <tbody>      
+                        <tr>    
+                            <td>
+                            <% if (email != null && email != "" &&  userUUID != null && userUUID != ""){ %>
+                                <h4><span class="badge badge-secondary"> Showing <span class="badge badge-pill badge-light"> <%- email %></span></span></h4>
+                            <% } %>
+                            </td> 
+                        </tr>
+                    </tbody>
+                </table>    
+            </div>
+        
+
+        <div class="table-responsive">
+
+            <% if(sessions != undefined && sessions.length){ %>
+                <table class="table table-striped mx-auto w-auto">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Nickname</th>
+                            <% if (accessLevel == cc_employee_admin) { %>
+                                <th>MAC</th>
+                                <th>Session ID</th>
+                            <% } %>
+                            <th>Recording Start</th>
+                            <th>Recording Name</th>
+                            <th>Description</th>  
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%  var count = 0;
+                            sessions.forEach( session=> {  
+                            
+                            var session_uuid = session.session_uuid;
+                            var mac = session.mac
+                            %>
+
+                            <tr>
+                                <% if (session.delete_session == true) { %>
+                                    <td >
+                                        <small class="text-muted">deleted</small>       
+                                    </td>
+                                <% } else { %>
+                                    <td><small class="text-success"> viewable </small></td>
+                                <% } %> 
+                                
+                                <td><small><%= session.grill %></small></td>
+
+                                <% if (accessLevel == cc_employee_admin) { %>
+                                    <td><%= mac %></td>
+
+                                    <td>
+                                        <% if (session.delete_session == true) { %>
+                                                <del><small class="text-muted"><%= session_uuid %></small></del>
+                                        <% } else { %>
+                                                <small class="text-muted"><%= session_uuid %></small>
+                                        <% } %>  
+                                    </td>
+                                   
+                                <% } %>      
+
+                                <td>
+                                    <% if (session.delete_session == true) { %>
+                                            <del><small><%= session.localStartDateTime %></small> </del>
+                                    <% } 
+                                        else { %>     
+                                            <small><%= session.localStartDateTime %></small>
+                                    <% } %>        
+                                </td>    
+
+
+                                <td>
+                                    <% if(session.name != undefined){  %>
+                                        <% if (session.delete_session == true) { %>
+                                            <del><small><%= session.name %></small> </del>
+                                        <% } 
+                                            else { %>     
+                                                <small><%= session.name %></small>
+                                        <% } %>        
+                                    <% } %>
+                                </td>
+                                
+                                <td>
+                                    <% if (session.delete_session == true) { %>
+                                            <del><small><%= session.description %></small> </del>
+                                    <% } 
+                                        else { %>     
+                                            <small><%= session.description %></small>
+                                    <% } %>        
+                                </td>
+                                
+                                <td>
+                                    <% if(session.name != undefined){  %>
+                                        <% if (session.delete_session != true) { %>
+                                                <a class="nav-link" data-toggle="tooltip" title="View Graph" id="chartIcon_<%= count %>" href=""> <i class="fas fa-chart-line text-warning"></i></a>
+                                                <% if (accessLevel == cc_employee_admin) { %>
+                                                    <a class="nav-link" data-toggle="tooltip" title="Delete Graph" id="delete_session_<%= count %>" href=""><i class="fas fa-trash text-muted"></i></a> 
+                                                <% } %>     
+                                        <% } 
+                                        else { %> 
+                                            <% if (accessLevel == cc_employee_admin) { %>
+                                                <a class="nav-link" data-toggle="tooltip" title="Restore Graph" id="restore_session_<%= count %>" href=""><i class="fas fa-trash-restore text-muted"></i></a>   
+                                            <% } %>        
+                                        <% } %>     
+                                    <% } %>    
+                                </td>  
+                            </tr>
+
+                            <script>
+                                        var time_offset = new Date().getTimezoneOffset();
+                                        var sessionHref = "/v3/records?email=<%= email %>&uuid=<%= userUUID %>&sessionId=<%= session_uuid %>&mac=<%= mac %>&tz_offset="+time_offset;
+
+                                        <% if (session.delete_session != true  ) { %>
+                                            document.getElementById("chartIcon_<%= count %>").setAttribute("href", sessionHref);
+                                        <% } %>    
+
+
+                                        <% if (accessLevel == cc_employee_admin) { %>
+
+                                            <% if (session.delete_session == true  ) { %>
+                                                var restore_sessionHref = "/v3/sessions?histEmail=<%= email %>&userUUID=<%= userUUID %>&restoreSessionId=<%= session_uuid %>&tz_offset="+time_offset;
+                                                document.getElementById("restore_session_<%= count %>").setAttribute("href", restore_sessionHref);
+                                            <% } 
+                                                else { %>   
+                                                var delete_sessionHref = "/v3/sessions?histEmail=<%= email %>&userUUID=<%= userUUID %>&deleteSessionId=<%= session_uuid %>&tz_offset="+time_offset;
+                                                document.getElementById("delete_session_<%= count %>").setAttribute("href", delete_sessionHref);
+                                            <% } %>  
+
+                                        <% } %>              
+                            </script>   
+
+                            <% count++; }); %>
+                    </tbody>
+                </table>
+                <% } %>
+        </div>
+    </div>
+
+    </main>
+
+    <footer>
+        <%- include('../partials/footer'); %>
+    </footer>
+
+</body>
+
+</html>

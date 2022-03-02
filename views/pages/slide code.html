@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <style>
+        .slidecontainer {
+            width: 50%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="slidecontainer">
+        <input type="range" class="custom-range" min="150" max="500" step="5" value="160" class="slider" id="tempRange">
+        <button type="button" class="btn btn-danger" id="tempButton">Temp</button>
+    </div>
+    <div class="slidecontainer">
+        <input type="range" class="custom-range" min="1" max="10" step="1" value="2" class="slider" id="smokeRange">
+        <button type="button" class="btn btn-light" id="smokeButton">smoke</button>
+    </div>
+
+
+    <script>
+        var tempSlider = document.getElementById("tempRange");
+        var smokeSlider = document.getElementById("smokeRange");
+
+        var tempButton = document.getElementById("tempButton");
+        var smokeButton = document.getElementById("smokeButton");
+
+        var tempValue = tempSlider.value;
+        var smokeValue = smokeSlider.value;
+
+        tempButton.innerHTML = tempValue;
+        smokeButton.innerHTML = smokeValue;
+
+        tempSlider.oninput = function () {
+            tempValue = this.value;
+
+            if (tempValue == 500) {
+                tempButton.innerHTML = "High";
+                smokeButton.innerHTML = "Smoke Disabled";
+            }
+            else if (tempValue >= 300) {
+                tempButton.innerHTML = tempValue;
+                smokeButton.innerHTML = "Smoke Disabled";
+            }
+            else if (tempValue == 150) {
+                tempButton.innerHTML = "Low Smoke";
+                smokeValue = 2;
+                smokeButton.innerHTML = smokeValue;
+                smokeSlider.value = smokeValue;
+            }
+            else if (tempValue == 155) {
+                tempButton.innerHTML = "High Smoke";
+                smokeValue = 3;
+                smokeButton.innerHTML = smokeValue;
+                smokeSlider.value = smokeValue;
+            }
+            else {
+                tempButton.innerHTML = tempValue;
+                smokeButton.innerHTML = smokeValue;
+                smokeSlider.value = smokeValue;
+            }
+        }
+
+        smokeSlider.oninput = function () {
+            smokeValue = this.value;
+
+            if (tempValue >= 300) {
+                if (tempValue == 500) {
+                    tempButton.innerHTML = 'High';
+                }
+                else {
+                    tempButton.innerHTML = tempValue;
+                }
+                smokeButton.innerHTML = "Smoke Disabled";
+            }
+            else if (tempValue == 150) {
+                tempValue = 160;
+                tempButton.innerHTML = tempValue;
+                tempSlider.value = tempValue
+                smokeButton.innerHTML = smokeValue;
+            }
+            else if (tempValue == 155) {
+                tempValue = 220;
+                tempButton.innerHTML = tempValue;
+                tempSlider.value = tempValue;
+                smokeButton.innerHTML = smokeValue;
+            }
+            else {
+                smokeButton.innerHTML = smokeValue;
+            }
+        }
+
+
+        tempButton.onclick = function () {
+            let alertStr = `temp: ${tempValue}`;
+            if (tempValue == 500) {
+                alertStr = 'High';
+            }
+            else if (tempValue == 150) {
+                alertStr = 'Low Smoke';
+            }
+            else if (tempValue == 155) {
+                alertStr = 'High Smoke';
+            }
+
+            alert(`temp: ${tempValue}`);
+        }
+
+        smokeButton.onclick = function () {
+            let alertStr = `smoke: ${smokeValue}`;
+
+            alert(alertStr);
+        }
+
+    </script>
+
+</body>
+
+</html>

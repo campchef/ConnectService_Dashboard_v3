@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+</head>
+
+<body class="container-fluid pt-0 mt-0">
+
+
+<div class="container">  
+        <%- include('../partials/header', {email:email, userUUID:userUUID}); %> 
+</div>         
+
+<div class="container-fluid pt-3">
+
+    <div class="row pt-0 mt-0 ">
+
+        <div class="col-xl-2">
+            <div class="card border border-muted mt-5">
+                    <div class="card-header bg-secondary">
+                        <h6 class="card-title text-light">Totals</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-group">
+                            <table class="table mx-auto w-auto">
+                                <tbody>    
+                                    <tr><td><small class="text-muted ">Devices</small></td><td><%= stats.deviceCount.toLocaleString() %></td></tr>
+                                    <tr><td><small class="text-muted">Users</small></td><td><%= stats.userCount.toLocaleString() %></td></tr>
+                                    <tr><td><small class="text-muted">Cooks *</small></td><td><%= stats.toDateTotal.toLocaleString() %></td></tr>
+                                    <tr><td><small class="text-muted">History Users</small></td><td><%= stats.totalGraphUsers.hist_views_total.toLocaleString() %></td></tr>
+                                    <tr><td><small class="text-muted">Live Graph Users</small></td><td><%= stats.totalGraphUsers.live_views_total.toLocaleString() %></td></tr>
+                                </tbody>
+                            </table> 
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <h6 class="small text-muted">*Since March 8, 2021</h6>
+                    </div>
+                </div>     
+        </div> 
+
+
+        <!-- <div class="jumbotron text-center" style= "background-color: transparent"> -->
+            
+<!-- <hr> -->
+
+<div class="col-xl-10">
+        <!-- Cooked Stats per Day  -->
+        <div class="col bg-light">
+            <canvas id="cookStats"></canvas>
+            <button class="btn btn-outline-secondary btn-sm" onclick="resetCookStatsChartZoom()">Reset Zoom</button>
+            <script>
+                function resetCookStatsChartZoom() {
+                    window.cookStatsChart.resetZoom();
+                }
+
+                const cookStatsData = {
+                    labels: <%- JSON.stringify(stats.date) %>,
+                    datasets: [
+                        {
+                            label: 'Grills that Cooked per Day',
+                            fill: false,
+                            tension: 0.1,
+                            data: <%- JSON.stringify(stats.total) %>
+                        }]
+                };
+
+                const cookStatsConfig = {
+                    type: 'bar',
+                    data: cookStatsData,
+                    options: {
+                        datasets:{
+                            bar:{
+                                borderColor: 'rgb(185, 0, 0)',
+                                backgroundColor: 'rgba(185,0,0,0.6)'
+                            }
+                        },
+                       
+                        scales: {
+                            xAxes: [{
+                                type: 'time',
+                               
+                                time: {
+                                    uint: 'day',
+                                    unitStepSize: 1,
+                                    displayFormats: {
+                                        'day': 'DDD'
+                                    }
+                                    
+                                }
+                            }]
+                        },
+                        limits: {
+                            minRange: 1
+                        },
+                        plugins: {
+                            zoom: {
+                                pan: {
+                                    enabled: true,
+                                    mode: 'xy'
+                                },
+                                zoom: {
+                                    enabled: true,
+                                    mode: 'xy'
+                                }
+                            }
+                        }
+                        
+                    }
+                };
+
+                var cookStatsChart = new Chart(
+                    document.getElementById('cookStats').getContext('2d'),
+                    cookStatsConfig
+                );
+
+            </script>
+        </div>
+    </div>
+</div> 
+        
+        
+        <footer>
+            <%- include('../partials/footer'); %>
+        </footer>
+    
+ </div>
+
+</body>
+</html>
