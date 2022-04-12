@@ -102,7 +102,7 @@
       <% } %>  
         <li>
             <div class="container">
-                <small class="badge badge badge-light text-muted" ><%= accessLable %>: <%= userToken.email %> </small>
+                <small class="badge badge badge-light text-muted" ><%= accessLable %> <%= userToken.email %> </small>
 
                 <% if (accessLevel == cc_employee_admin) { %>
                   <br>
